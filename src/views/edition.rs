@@ -10,7 +10,7 @@ pub fn Edition(id: EditionId) -> Element {
     rsx! {
         div {
             match &*data.read_unchecked() {
-                Some(Ok(_data)) => rsx! { "TODO" },
+                Some(Ok(_data)) => rsx! { "TODO: {id}" },
                 Some(Err(e)) => rsx! {
                 "Fehler beim laden der Ausgabe: {e}"
                 },
