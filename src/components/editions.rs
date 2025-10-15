@@ -1,18 +1,9 @@
-use std::collections::HashMap;
-
+use crate::db::{db, entities::edition};
 use dioxus::prelude::*;
-use serde::{Deserialize, Serialize};
+use sea_orm::EntityTrait;
+use std::fmt::Display;
 
-pub type EditionId = u64;
-
-#[derive(Deserialize, Serialize)]
-pub struct EditionMetaData {
-    pub id: EditionId,
-    pub date: String,
-}
-
-#[derive(Deserialize, Serialize, Clone)]
-pub struct EditionData {}
+pub type EditionId = i32;
 
 // Server functions let us define public APIs on the server that can be called like a normal async function from the client.
 // Each server function needs to be annotated with the `#[server]` attribute, accept and return serializable types, and return
@@ -21,28 +12,9 @@ pub struct EditionData {}
 // When the server function is called from the client, it will just serialize the arguments, call the API, and deserialize the
 // response.
 #[server]
-pub async fn fetch_editions_metadata() -> Result<Vec<EditionMetaData>, ServerFnError> {
-    Ok(vec![
-        EditionMetaData {
-            id: 0,
-            date: "01.01.2001".to_string(),
-        },
-        EditionMetaData {
-            id: 1,
-            date: "30.05.2025".to_string(),
-        },
-    ])
-}
-
-#[server]
-pub async fn fetch_edition_data(id: EditionId) -> Result<EditionData, ServerFnError> {
-    let editions: HashMap<EditionId, EditionData> =
-        HashMap::from_iter([(0, EditionData {}), (1, EditionData {})]);
-
-    editions
-        .get(&id)
-        .ok_or(ServerFnError::ServerError(format!(
-            "Edition with id {id} not found."
-        )))
-        .map(Clone::clone)
+pub async fn fetch_editions() -> Result<Vec<edition::Model>, ServerFnError> {
+    edition::Entity::find()
+        .all(db())
+        .await
+        .map_err(|err| ServerFnError::ServerError(format!("{err}")))
 }

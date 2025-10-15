@@ -10,7 +10,7 @@ impl MigrationTrait for Migration {
             .alter_table(
                 Table::alter()
                     .table(Edition::Table)
-                    .add_column_if_not_exists(integer(Edition::Views))
+                    .add_column_if_not_exists(integer(Edition::Views).default(0))
                     .to_owned(),
             )
             .await
@@ -31,7 +31,5 @@ impl MigrationTrait for Migration {
 #[derive(DeriveIden)]
 enum Edition {
     Table,
-    Id,
-    Date,
     Views,
 }

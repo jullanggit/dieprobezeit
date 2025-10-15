@@ -1,4 +1,4 @@
-mod entities;
+pub mod entities;
 mod migrations;
 
 pub use migrations::Migrator;

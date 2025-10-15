@@ -16,6 +16,7 @@ sea-orm = { version = "1.1.17", default-features = false, features = [
 ] }
 sea-orm-migration = { version = "1.1.17", default-features = false }
 serde = { version = "1.0.228", features = ["derive"] }
+time = { version = "0.3.44", features = ["serde"] }
 tokio = { version = "1.48.0", default-features = false, features = [
   "macros",
   "rt-multi-thread",
