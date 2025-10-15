@@ -2,6 +2,7 @@
 // need dioxus
 use dioxus::prelude::*;
 
+use sea_orm::DbErr;
 use sea_orm_migration::MigratorTrait;
 use views::*;
 
@@ -45,11 +46,18 @@ enum Route {
 const MAIN_CSS: Asset = asset!("/assets/styling/main.css");
 const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
 
-fn main() {
-    init_db();
-    Migrator::up(db(), None);
+fn main() -> Result<(), DbErr> {
+    let rt = tokio::runtime::Runtime::new().expect("Failed to create async runtime");
+    rt.block_on(async {
+        init_db().await;
+        Migrator::up(db(), None)
+            .await
+            .expect("Failed to run migrations");
+    });
 
     dioxus::launch(App);
+
+    Ok(())
 }
 
 /// App is the main component of our app. Components are the building blocks of dioxus apps. Each component is a function

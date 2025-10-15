@@ -1,8 +1,9 @@
+mod entities;
 mod migrations;
-use std::sync::OnceLock;
 
 pub use migrations::Migrator;
 use sea_orm::{Database, DatabaseConnection};
+use std::sync::OnceLock;
 
 static DB: OnceLock<DatabaseConnection> = OnceLock::new();
 pub async fn init_db() {
