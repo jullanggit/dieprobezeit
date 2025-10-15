@@ -1,8 +1,11 @@
-use crate::db::{db, entities::edition};
-use crate::server_fn::error::NoCustomError;
 use dioxus::prelude::*;
-use sea_orm::{sea_query::Expr, ColumnTrait, EntityTrait, QueryFilter, QuerySelect};
-use std::fmt::Display;
+
+#[cfg(feature = "server")]
+use crate::db::db;
+#[cfg(feature = "server")]
+use sea_orm::{sea_query::Expr, ColumnTrait, EntityTrait, QueryFilter};
+
+use crate::db::entities::edition;
 
 pub type EditionId = i32;
 
@@ -17,7 +20,7 @@ pub async fn fetch_editions() -> Result<Vec<edition::Model>, ServerFnError> {
     edition::Entity::find()
         .all(db())
         .await
-        .map_err(|err| ServerFnError::ServerError(format!("{err}")))
+        .map_err(|err| ServerFnError::new(format!("{err}")))
 }
 
 #[server]
@@ -25,7 +28,7 @@ pub async fn view_edition(id: i32) -> Result<edition::Model, ServerFnError> {
     let db = db();
 
     // increment view count
-    edition::Entity::update_many()
+    let _ = edition::Entity::update_many()
         .col_expr(
             edition::Column::Views,
             Expr::col(edition::Column::Views).add(1),
@@ -38,8 +41,6 @@ pub async fn view_edition(id: i32) -> Result<edition::Model, ServerFnError> {
     edition::Entity::find_by_id(id)
         .one(db)
         .await
-        .map_err(|err| ServerFnError::<NoCustomError>::ServerError(format!("{err}")))?
-        .ok_or(ServerFnError::<NoCustomError>::ServerError(format!(
-            "Edition {id} not found"
-        )))
+        .map_err(|err| ServerFnError::new(format!("{err}")))?
+        .ok_or(ServerFnError::new(format!("Edition {id} not found")))
 }

@@ -2,14 +2,9 @@
 // need dioxus
 use dioxus::prelude::*;
 
-use sea_orm::DbErr;
-use sea_orm_migration::MigratorTrait;
 use views::*;
 
-use crate::{
-    components::EditionId,
-    db::{db, init_db, Migrator},
-};
+use crate::components::EditionId;
 
 /// Define a components module that contains all shared components for our app.
 mod components;
@@ -46,18 +41,25 @@ enum Route {
 const MAIN_CSS: Asset = asset!("/assets/styling/main.css");
 const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
 
-fn main() -> Result<(), DbErr> {
-    let rt = tokio::runtime::Runtime::new().expect("Failed to create async runtime");
-    rt.block_on(async {
+fn main() {
+    #[cfg(not(feature = "server"))]
+    dioxus::launch(App);
+
+    #[cfg(feature = "server")]
+    dioxus::serve(|| async move {
+        use crate::db::{db, init_db, Migrator};
+        use sea_orm_migration::MigratorTrait;
+
         init_db().await;
         Migrator::up(db(), None)
             .await
             .expect("Failed to run migrations");
+
+        let router = dioxus::server::router(App)
+            .nest_service("/pdfs", tower_http::services::ServeDir::new("pdfs"));
+
+        Ok(router)
     });
-
-    dioxus::launch(App);
-
-    Ok(())
 }
 
 /// App is the main component of our app. Components are the building blocks of dioxus apps. Each component is a function
