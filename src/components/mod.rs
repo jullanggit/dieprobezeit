@@ -3,4 +3,4 @@
 //! component and an Echo component for fullstack apps to be used in our app.
 
 mod editions;
-pub use editions::{fetch_editions, EditionId};
+pub use editions::{fetch_editions, view_edition, EditionId};
