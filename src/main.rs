@@ -2,12 +2,17 @@
 // need dioxus
 use dioxus::prelude::*;
 
+use sea_orm_migration::MigratorTrait;
 use views::*;
 
-use crate::components::EditionId;
+use crate::{
+    components::EditionId,
+    db::{db, init_db, Migrator},
+};
 
 /// Define a components module that contains all shared components for our app.
 mod components;
+mod db;
 /// Define a views module that contains the UI for all Layouts and Routes for our app.
 mod views;
 
@@ -41,8 +46,9 @@ const MAIN_CSS: Asset = asset!("/assets/styling/main.css");
 const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
 
 fn main() {
-    // The `launch` function is the main entry point for a dioxus app. It takes a component and renders it with the platform feature
-    // you have enabled
+    init_db();
+    Migrator::up(db(), None);
+
     dioxus::launch(App);
 }
 
