@@ -8,10 +8,10 @@ pub fn Home() -> Element {
 
     rsx! {
         div {
-            h1 { "MNG Schüelerziitig" }
+            h1 { class: "text-4xl font-bold" , "MNG Schüelerziitig" }
             a { "Willkomme zur monatliche MNG Schüelerziitg!" }
 
-            h2 { "Neusti Usgab" }
+            h2 { class: "text-2xl", "Neusti Usgab" }
 
             match &*editions.read_unchecked() {
                 Some(Ok(editions)) => {
