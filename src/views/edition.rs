@@ -11,18 +11,11 @@ pub fn Edition(id: EditionId) -> Element {
         div {
             match &*data.read_unchecked() {
                 Some(Ok(data)) => rsx! {
-                    div{
-                        style: "background-color: white; display: inline-block;",
-                        img {
-                            src: "/svgs/{data.date}.svg",
-                            height: "100%",
-                            width: "auto",
-                        }
+                    div { style: "background-color: white; display: inline-block;",
+                        img { src: "/svgs/{data.date}.svg", height: "100%", width: "auto" }
                     }
                 },
-                Some(Err(e)) => rsx! {
-                "Fehler beim laden der Ausgabe: {e}"
-                },
+                Some(Err(e)) => rsx! { "Fehler beim laden der Ausgabe: {e}" },
                 None => rsx! { "Lade Ausgabe..." },
             }
         }

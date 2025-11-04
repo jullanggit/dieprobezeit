@@ -1,0 +1,7 @@
+- Feedback
+  - add to edition
+  - separate top-level page
+  - associate with edition if it was submitted from one
+  - optionally also let them give an email for contact
+  - send email to us on submit
+- Titles for editions

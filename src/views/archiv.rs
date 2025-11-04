@@ -13,7 +13,7 @@ pub fn Archiv() -> Element {
 
     rsx! {
         div {
-            h1 { "Archiv aller Ausgaben" }
+            h1 { class: "text-4xl", "Archiv aller Ausgaben" }
 
             match &*editions.read_unchecked() {
                 Some(Ok(editions)) => rsx! {
@@ -22,9 +22,7 @@ pub fn Archiv() -> Element {
                         br {}
                     }
                 },
-                Some(Err(e)) => rsx! {
-                "Fehler beim laden des Archivs: {e}"
-                },
+                Some(Err(e)) => rsx! { "Fehler beim laden des Archivs: {e}" },
                 None => rsx! { "Lade Archiv..." },
             }
         }

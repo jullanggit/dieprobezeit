@@ -8,10 +8,10 @@ pub fn Home() -> Element {
 
     rsx! {
         div {
-            h1 { class: "text-4xl font-bold" , "MNG Schüelerziitig" }
+            h1 { class: "text-4xl", "MNG Schüelerziitig" }
             a { "Willkomme zur monatliche MNG Schüelerziitg!" }
 
-            h2 { class: "text-2xl", "Neusti Usgab" }
+            h2 { class: "text-3xl", "Neusti Usgab" }
 
             match &*editions.read_unchecked() {
                 Some(Ok(editions)) => {
@@ -23,9 +23,7 @@ pub fn Home() -> Element {
                         },
                     }
                 }
-                Some(Err(e)) => rsx! {
-                "Fehler beim laden der Ausgaben: {e}"
-                },
+                Some(Err(e)) => rsx! { "Fehler beim laden der Ausgaben: {e}" },
                 None => rsx! { "Lade Ausgaben..." },
             }
         }
