@@ -10,8 +10,15 @@ pub fn Edition(id: EditionId) -> Element {
     rsx! {
         div {
             match &*data.read_unchecked() {
-                Some(Ok(_data)) => rsx! {
-                    "TODO id: {id}, views: {_data.views}"
+                Some(Ok(data)) => rsx! {
+                    div{
+                        style: "background-color: white; display: inline-block;",
+                        img {
+                            src: "/svgs/{data.date}.svg",
+                            height: "100%",
+                            width: "auto",
+                        }
+                    }
                 },
                 Some(Err(e)) => rsx! {
                 "Fehler beim laden der Ausgabe: {e}"
