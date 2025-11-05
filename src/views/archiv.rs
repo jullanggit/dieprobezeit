@@ -18,7 +18,13 @@ pub fn Archiv() -> Element {
             match &*editions.read_unchecked() {
                 Some(Ok(editions)) => rsx! {
                     for edition in editions {
-                        Link { to: Route::Edition { id: edition.id }, "{edition.date}" }
+                        Link { to: Route::Edition { id: edition.id },
+                            if let Some(title) = edition.title.as_ref() {
+                                "{edition.date} - {title}"
+                            } else {
+                                "{edition.date}"
+                            }
+                        }
                         br {}
                     }
                 },
