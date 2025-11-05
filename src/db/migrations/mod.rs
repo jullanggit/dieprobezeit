@@ -3,6 +3,7 @@ use sea_orm_migration::prelude::*;
 mod m20251015_085200_create_editions;
 mod m20251015_105110_add_views;
 mod m20251105_094423_add_title_to_edition;
+mod m20251105_122406_add_feedback;
 
 pub struct Migrator;
 
@@ -12,6 +13,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20251015_085200_create_editions::Migration),
             Box::new(m20251015_105110_add_views::Migration),
             Box::new(m20251105_094423_add_title_to_edition::Migration),
+            Box::new(m20251105_122406_add_feedback::Migration),
         ]
     }
 }
