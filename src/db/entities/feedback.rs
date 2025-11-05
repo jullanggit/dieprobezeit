@@ -4,24 +4,30 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
-#[sea_orm(table_name = "edition")]
+#[sea_orm(table_name = "feedback")]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
-    pub date: TimeDate,
-    pub views: i32,
-    pub title: Option<String>,
+    pub content: String,
+    pub email: Option<String>,
+    pub edition_id: Option<i32>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(has_many = "super::feedback::Entity")]
-    Feedback,
+    #[sea_orm(
+        belongs_to = "super::edition::Entity",
+        from = "Column::EditionId",
+        to = "super::edition::Column::Id",
+        on_update = "Cascade",
+        on_delete = "SetNull"
+    )]
+    Edition,
 }
 
-impl Related<super::feedback::Entity> for Entity {
+impl Related<super::edition::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Feedback.def()
+        Relation::Edition.def()
     }
 }
 

@@ -3,3 +3,4 @@
 pub mod prelude;
 
 pub mod edition;
+pub mod feedback;
