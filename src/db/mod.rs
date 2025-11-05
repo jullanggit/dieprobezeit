@@ -9,3 +9,12 @@ mod migrations;
 pub use init_and_get::{db, init_db};
 #[cfg(feature = "server")]
 pub use migrations::Migrator;
+
+impl entities::edition::Model {
+    // data - title?
+    pub fn label(&self) -> String {
+        self.title.as_ref().map_or(self.date.to_string(), |title| {
+            format!("{} - {title}", self.date)
+        })
+    }
+}
