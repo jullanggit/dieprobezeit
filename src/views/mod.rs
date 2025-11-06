@@ -22,3 +22,6 @@ pub use notfound::NotFound;
 
 mod edition;
 pub use edition::Edition;
+
+mod feedback;
+pub use feedback::Feedback;

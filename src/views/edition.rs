@@ -1,6 +1,8 @@
+use crate::{
+    components::{view_edition, EditionId},
+    views::Feedback,
+};
 use dioxus::prelude::*;
-
-use crate::components::{view_edition, EditionId};
 
 /// The Home page component that will be rendered when the current route is `[Route::Home]`
 #[component]
@@ -19,6 +21,7 @@ pub fn Edition(id: EditionId) -> Element {
                 Some(Err(e)) => rsx! { "Fehler beim laden der Ausgabe: {e}" },
                 None => rsx! { "Lade Ausgabe..." },
             }
+            Feedback {}
         }
     }
 }
