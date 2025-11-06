@@ -1,3 +1,2 @@
 - Feedback
-  - separate top-level page
   - send email to us on submit

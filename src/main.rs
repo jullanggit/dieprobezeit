@@ -29,6 +29,8 @@ enum Route {
         Home {},
         #[route("/archive")]
         Archiv {},
+        #[route("/feedback")]
+        Feedback,
 
     #[route("/editions/:id")]
     Edition { id: EditionId },

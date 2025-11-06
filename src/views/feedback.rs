@@ -1,6 +1,6 @@
 use crate::EditionId;
-use dioxus::{fullstack::Form, prelude::*};
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use dioxus::prelude::*;
+use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize)]
 struct FeedbackForm {

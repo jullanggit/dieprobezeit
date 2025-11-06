@@ -16,6 +16,7 @@ pub fn Navbar() -> Element {
         div { id: "navbar",
             Link { to: Route::Home {}, "Home" }
             Link { to: Route::Archiv {}, "Archiv" }
+            Link { to: Route::Feedback {}, "Feedback" }
         }
 
         // The `Outlet` component is used to render the next component inside the layout. In this case, it will render either
