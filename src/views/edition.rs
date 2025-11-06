@@ -21,7 +21,7 @@ pub fn Edition(id: EditionId) -> Element {
                 Some(Err(e)) => rsx! { "Fehler beim laden der Ausgabe: {e}" },
                 None => rsx! { "Lade Ausgabe..." },
             }
-            Feedback {}
+            Feedback {edition_id: id}
         }
     }
 }
