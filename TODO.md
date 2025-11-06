@@ -1,4 +1,3 @@
 - Feedback
   - separate top-level page
-  - associate with edition if it was submitted from one
   - send email to us on submit

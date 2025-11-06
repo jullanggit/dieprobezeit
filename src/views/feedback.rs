@@ -35,29 +35,44 @@ async fn send_feedback(data: FeedbackRequest) -> Result<()> {
 
 #[component]
 pub fn Feedback(edition_id: Option<EditionId>) -> Element {
-    rsx! {
-        form {
-            onsubmit: move |evt: FormEvent| async move {
-                evt.prevent_default();
-                let form: FeedbackForm = evt.parsed_values().unwrap();
+    let mut submitted = use_signal(|| false);
 
-                let _ = send_feedback(FeedbackRequest{form, edition_id}).await; // TODO: send notification or smth on error
-            },
-            label { "Feedback" }
-            br {}
-            textarea {
-                id: "content", name: "content",
-                style: "color: black;"
+    // hide feedback if it was submitted
+    rsx! {
+        if !*submitted.read() {
+            form {
+                onsubmit: move |evt: FormEvent| async move {
+                    evt.prevent_default();
+                    let form: FeedbackForm = evt.parsed_values().unwrap();
+
+                    // TODO: display error or smth if it is not ok
+                    if send_feedback(FeedbackRequest {
+                            form,
+                            edition_id,
+                        })
+                        .await
+                        .is_ok()
+                    {
+                        *submitted.write() = true;
+                    }
+                },
+                label { "Feedback" }
+                br {}
+                textarea { id: "content", name: "content", style: "color: black;" }
+                br {}
+                label { "Optional: Email für weiteren Kontakt" }
+                br {}
+                input {
+                    r#type: "text",
+                    id: "email",
+                    name: "email",
+                    style: "color: black;",
+                }
+                br {}
+                button { "Senden" }
             }
-            br {}
-            label { "Optional: Email für weiteren Kontakt" }
-            br {}
-            input {
-                type: "text", id: "email", name: "email",
-                style: "color: black;"
-            }
-            br {}
-            button { "Senden" }
+        } else {
+            "Feedback erfolgreich gesendet"
         }
     }
 }
