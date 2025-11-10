@@ -6,12 +6,12 @@ echo "#set page(height: auto)
 #let n = 1
 #stack(
   while n <= N {
-    image(\"$1\", page: n, width: auto)
+    image(\"pdfs/$1.pdf\", page: n, width: auto)
     n += 1
   }
 )" > typst.typ
 # use $1 instead of pdfs/$1, even though pdfs will always be in pdfs/, to allow shell autocompletion for paths
 
 typst c typst.typ typst.pdf
-pdf2svg typst.pdf svgs/2027-03-28.svg
+pdf2svg typst.pdf svgs/$1.svg
 rm typst.pdf typst.typ

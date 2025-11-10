@@ -7,9 +7,11 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dioxus = { version = "0.7.0", features = ["router", "fullstack", "web"] }
-dioxus-html = { version = "0.7.0", features = ["serialize"] } # for .parsed_values()
-sea-orm = { version = "1.1.17",  default-features = false, features = [
+dioxus = { version = "0.7.1", features = ["router", "fullstack", "web"] }
+dioxus-html = { version = "0.7.1", features = [
+  "serialize",
+] } # for .parsed_values()
+sea-orm = { version = "1.1.17", default-features = false, features = [
   "macros",
   "with-time",
 ] }
@@ -30,7 +32,14 @@ web = ["dioxus/web"]
 desktop = ["dioxus/desktop"]
 # The feature that are only required for the mobile = ["dioxus/mobile"] build target should be optional and only enabled in the mobile = ["dioxus/mobile"] feature
 mobile = ["dioxus/mobile"]
-server = ["dioxus/server", "dep:sea-orm-migration",  "sea-orm/runtime-tokio-rustls", "sea-orm/sqlx-sqlite", "dep:tokio", "dep:tower-http"]
+server = [
+  "dioxus/server",
+  "dep:sea-orm-migration",
+  "sea-orm/runtime-tokio-rustls",
+  "sea-orm/sqlx-sqlite",
+  "dep:tokio",
+  "dep:tower-http",
+]
 
 [profile]
 
