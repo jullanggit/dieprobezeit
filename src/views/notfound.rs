@@ -6,11 +6,11 @@ pub fn NotFound(segments: Vec<String>) -> Element {
     rsx! {
         div {
             h1 {
-                "Page"
+                "Page "
                 for segment in segments {
                     "{segment}/"
                 }
-                "not Found"
+                " not Found"
             }
         }
     }

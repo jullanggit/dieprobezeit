@@ -4,7 +4,7 @@ use dioxus::prelude::*;
 /// The Home page component that will be rendered when the current route is `[Route::Home]`
 #[component]
 pub fn Home() -> Element {
-    let editions = use_resource(move || async move { fetch_editions().await });
+    let editions = use_server_future(move || async move { fetch_editions().await })?;
 
     rsx! {
         div {

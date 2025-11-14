@@ -7,15 +7,15 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dioxus = { version = "0.7.1", features = ["router", "fullstack", "web"] }
+dioxus = { version = "0.7.1", features = ["router", "fullstack"] }
 dioxus-html = { version = "0.7.1", features = [
   "serialize",
 ] } # for .parsed_values()
-sea-orm = { version = "1.1.17", default-features = false, features = [
+sea-orm = { version = "1.1.19", default-features = false, features = [
   "macros",
   "with-time",
 ] }
-sea-orm-migration = { version = "1.1.17", optional = true, default-features = false }
+sea-orm-migration = { version = "1.1.19", optional = true, default-features = false }
 serde = { version = "1.0.228", features = ["derive"] }
 time = { version = "0.3.44", features = ["serde"] }
 tokio = { version = "1.48.0", optional = true, default-features = false, features = [
@@ -52,3 +52,8 @@ inherits = "dev"
 
 [profile.android-dev]
 inherits = "dev"
+
+[profile.release]
+strip = false
+incremental = true
+lto = "thin"
