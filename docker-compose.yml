@@ -1,0 +1,8 @@
+services:
+  backend:
+    build: .
+    volumes:
+      - ./svgs:/app/svgs:ro
+      - ./mng.db:/app/mng.db:rw
+    ports:
+      - "8080:8080"
