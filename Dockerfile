@@ -3,10 +3,11 @@ FROM rust:latest AS builder
 
 WORKDIR /app
 
-# install dx
-RUN cargo install dioxus-cli
-
 ENV PATH="/root/.cargo/bin:${PATH}"
+
+# install dx through cargo-binstall, as cargo-binstall is quite a lot smaller
+RUN cargo install cargo-binstall 
+RUN cargo binstall dioxus-cli
 
 COPY . .
 
