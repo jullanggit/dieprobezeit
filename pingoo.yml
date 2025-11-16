@@ -8,7 +8,7 @@ listeners:
 
 services:
   website:
-    http_proxy: []
+    http_proxy: ["http://localhost:8080"]
 
 rules:
   captcha_bots:

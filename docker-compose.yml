@@ -4,12 +4,10 @@ services:
     volumes:
       - ./svgs:/app/svgs:ro
       - ./mng.db:/app/mng.db:rw
-    expose:
-      - "8080"
-    networks:
-      - app_net
+    network_mode: "host"
     labels:
       pingoo.service: website
+      pingoo.port: "8080"
 
   pingoo:
     image: pingooio/pingoo:latest
@@ -20,7 +18,3 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     depends_on:
       - backend
-
-networks:
-  app_net:
-    driver: bridge
