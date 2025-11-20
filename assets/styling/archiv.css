@@ -1,0 +1,8 @@
+#archiv a {
+  color: #ffffff;
+}
+
+#archiv a:hover {
+  color: #91a4d2;
+  cursor: pointer;
+}

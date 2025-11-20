@@ -1,6 +1,7 @@
 #navbar {
   display: flex;
   flex-direction: row;
+  justify-content: center;
 }
 
 #navbar a {

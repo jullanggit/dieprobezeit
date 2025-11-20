@@ -1,6 +1,8 @@
 use crate::{components::fetch_editions, Route};
 use dioxus::prelude::*;
 
+const ARCHIV_CSS: Asset = asset!("/assets/styling/archiv.css");
+
 /// The Home page component that will be rendered when the current route is `[Route::Home]`
 #[component]
 pub fn Archiv() -> Element {
@@ -12,7 +14,9 @@ pub fn Archiv() -> Element {
     })?;
 
     rsx! {
-        div {
+        document::Link { rel: "stylesheet", href: ARCHIV_CSS }
+
+        div { id: "archiv",
             h1 { class: "text-4xl", "Archiv aller Ausgaben" }
 
             match &*editions.read_unchecked() {
