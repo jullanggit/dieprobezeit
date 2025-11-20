@@ -1,6 +1,6 @@
 #! /usr/bin/bash
 
-echo "#set page(height: auto)
+echo "#set page(height: auto, margin: 0cm)
 
 #let N = $2
 #let n = 1
@@ -9,8 +9,7 @@ echo "#set page(height: auto)
     image(\"pdfs/$1.pdf\", page: n, width: auto)
     n += 1
   }
-)" > typst.typ
-# use $1 instead of pdfs/$1, even though pdfs will always be in pdfs/, to allow shell autocompletion for paths
+)" >typst.typ
 
 typst c typst.typ typst.pdf
 pdf2svg typst.pdf svgs/$1.svg
