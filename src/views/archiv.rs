@@ -2,6 +2,7 @@ use crate::{components::fetch_editions, Route};
 use dioxus::prelude::*;
 
 const ARCHIV_CSS: Asset = asset!("/assets/styling/archiv.css");
+const RSS_ICON: Asset = asset!("/assets/rss.png");
 
 /// The Home page component that will be rendered when the current route is `[Route::Home]`
 #[component]
@@ -28,6 +29,20 @@ pub fn Archiv() -> Element {
                 },
                 Some(Err(e)) => rsx! { "Fehler beim laden des Archivs: {e}" },
                 None => rsx! { "Lade Archiv..." },
+            }
+
+            div {id: "feed-link",
+                style: "margin-top: 2em; text-align: center;",
+                Link {
+                    // use External so the Router doesn't hijack the link
+                    to: NavigationTarget::<crate::Route>::External("/feed.xml".to_string()),
+                    img {
+                        src: RSS_ICON,
+                        alt: "Atom Feed",
+                        width: 30,
+                        height: 30,
+                    }
+                }
             }
         }
     }

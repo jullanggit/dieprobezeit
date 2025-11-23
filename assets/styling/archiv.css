@@ -1,8 +1,12 @@
 #archiv a {
-  color: #ffffff;
+    color: #ffffff;
 }
 
 #archiv a:hover {
-  color: #91a4d2;
-  cursor: pointer;
+    color: #91a4d2;
+    cursor: pointer;
+}
+
+#archiv img {
+    display: inline-block;
 }

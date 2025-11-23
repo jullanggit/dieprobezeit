@@ -1,9 +1,13 @@
 use crate::{components::fetch_editions, URL};
 use atom_syndication::{EntryBuilder, FeedBuilder, FixedDateTime, LinkBuilder, Person};
-use dioxus::prelude::*;
+use dioxus::{
+    fullstack::response::{IntoResponse, Response},
+    prelude::*,
+    server::http::header,
+};
 
 #[get("/feed.xml")]
-async fn atom_feed() -> Result<String> {
+async fn atom_feed() -> Result<Response> {
     let author = Person {
         name: "MNG Schüelerziitig Team".into(),
         // TODO: email
@@ -57,5 +61,9 @@ async fn atom_feed() -> Result<String> {
         feed.entry(entry?);
     }
 
-    Ok(feed.build().to_string())
+    Ok((
+        [(header::CONTENT_TYPE, "application/atom+xml; charset=utf-8")],
+        feed.build().to_string(),
+    )
+        .into_response())
 }
