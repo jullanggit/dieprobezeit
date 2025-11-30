@@ -73,7 +73,3 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: Show image digest
-        if: github.event_name == 'push'
-        run: echo "Pushed image digest: ${{ steps.build.outputs.digest }}"
