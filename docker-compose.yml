@@ -1,6 +1,7 @@
 services:
   backend:
-    build: .
+    # build: .
+    image: ghcr.io/jullanggit/dieprobezeit-backend:latest
     volumes:
       - ./svgs:/app/svgs:ro
       - ./mng.db:/app/mng.db:rw
