@@ -45,8 +45,7 @@ enum Route {
 const MAIN_CSS: Asset = asset!("/assets/styling/main.css");
 const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
 
-// TODO: update with permanent URL
-const URL: &str = "http://127.0.0.1";
+const URL: &str = "https://dieprobezeit.ch";
 
 fn main() {
     #[cfg(not(feature = "server"))]
