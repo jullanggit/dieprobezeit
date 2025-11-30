@@ -8,8 +8,8 @@ pub fn Home() -> Element {
 
     rsx! {
         div {
-            h1 { class: "text-4xl", "MNG Schüelerziitig" }
-            a { "Willkomme zur monatliche MNG Schüelerziitg!" }
+            h1 { class: "text-4xl", "Die Probe Zeit" }
+            a { "Willkomme zur monatliche usgab vo de Probe Ziit!" }
 
             h2 { class: "text-3xl", "Neusti Usgab" }
 

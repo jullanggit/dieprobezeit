@@ -9,7 +9,7 @@ use dioxus::{
 #[get("/feed.xml")]
 async fn atom_feed() -> Result<Response> {
     let author = Person {
-        name: "MNG Schüelerziitig Team".into(),
+        name: "Die Probe Zeit Team".into(),
         // TODO: email
         email: None,
         uri: None,
@@ -48,8 +48,8 @@ async fn atom_feed() -> Result<Response> {
         .collect::<Vec<_>>();
 
     let mut feed = FeedBuilder::default();
-    feed.title("MNG Schüelerziitig")
-        .id("urn:uuid:mng-schuelerziitig")
+    feed.title("Die Probe Zeit")
+        .id("urn:uuid:dieprobezeit")
         .updated(newest)
         // TODO: add
         //  - icon

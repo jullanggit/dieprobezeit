@@ -21,11 +21,11 @@ FROM debian:stable-slim
 WORKDIR /app
 
 # backend binary
-COPY --from=builder /app/target/dx/mng-schuelerziitig/release/web/mng-schuelerziitig /app/mng-schuelerziitig
+COPY --from=builder /app/target/dx/dieprobezeit/release/web/dieprobezeit /app/dieprobezeit
 # static files
-COPY --from=builder /app/target/dx/mng-schuelerziitig/release/web/public /app/public
+COPY --from=builder /app/target/dx/dieprobezeit/release/web/public /app/public
 
 RUN mkdir svgs
 
 EXPOSE 8080
-CMD ["./mng-schuelerziitig"]
+CMD ["./dieprobezeit"]

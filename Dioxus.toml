@@ -3,7 +3,7 @@
 [web.app]
 
 # HTML title tag content
-title = "mng-schüelerziitig"
+title = "Die Probe Zeit"
 
 # include `assets` in web platform
 [web.resource]
