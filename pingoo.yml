@@ -10,6 +10,10 @@ services:
   website:
     http_proxy: ["http://localhost:8080"]
 
+tls:
+  acme:
+    domains: ["dieprobezeit.ch", "www.dieprobezeit.ch"]
+
 rules:
   captcha_bots:
     expression: |
