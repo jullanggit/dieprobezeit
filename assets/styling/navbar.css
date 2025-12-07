@@ -13,6 +13,10 @@
     transition: color 0.2s ease;
 }
 
+#navbar a:last-child {
+    margin-right: 0;
+}
+
 #navbar a:hover {
     cursor: pointer;
     color: #91a4d2;
