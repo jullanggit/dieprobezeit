@@ -5,7 +5,6 @@ use crate::{
 };
 use dioxus::prelude::*;
 
-/// The Home page component that will be rendered when the current route is `[Route::Home]`
 #[component]
 pub fn Edition(id: EditionId) -> Element {
     let data = use_server_future(move || async move { view_edition(id).await })?;

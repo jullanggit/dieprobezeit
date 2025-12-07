@@ -4,7 +4,6 @@ use dioxus::prelude::*;
 const ARCHIV_CSS: Asset = asset!("/assets/styling/archiv.css");
 const RSS_ICON: Asset = asset!("/assets/rss.png");
 
-/// The Home page component that will be rendered when the current route is `[Route::Home]`
 #[component]
 pub fn Archiv() -> Element {
     let editions = use_server_future(move || async move {
