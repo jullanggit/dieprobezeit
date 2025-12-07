@@ -7,12 +7,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-atom_syndication = {version = "0.12.7", optional = true}
+atom_syndication = { version = "0.12.7", optional = true }
 dioxus = { version = "0.7.1", features = ["router", "fullstack"] }
 # for .parsed_values()
-dioxus-html = { version = "0.7.1", features = [
-  "serialize",
-] }
+dioxus-html = { version = "0.7.1", features = ["serialize"] }
 
 sea-orm = { version = "1.1.19", default-features = false, features = [
   "macros",
@@ -28,7 +26,10 @@ tokio = { version = "1.48.0", optional = true, default-features = false, feature
 tower-http = { version = "0.6.6", optional = true, features = ["fs"] }
 
 # workaround for wasm-bindgen-issue
-web-sys = "=0.3.78"
+web-sys = { version = "=0.3.78", features = [
+  "Window",
+  "Storage"
+] }
 
 [features]
 default = []

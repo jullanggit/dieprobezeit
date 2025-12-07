@@ -1,4 +1,4 @@
-use crate::Route;
+use crate::{i18n, Route};
 use dioxus::prelude::*;
 
 const NAVBAR_CSS: Asset = asset!("/assets/styling/navbar.css");
@@ -10,12 +10,14 @@ const NAVBAR_CSS: Asset = asset!("/assets/styling/navbar.css");
 /// routes will be rendered under the outlet inside this component
 #[component]
 pub fn Navbar() -> Element {
+    let lang = i18n::get_lang();
+
     rsx! {
         document::Link { rel: "stylesheet", href: NAVBAR_CSS }
 
         div { id: "navbar",
             Link { to: Route::Home {}, "Home" }
-            Link { to: Route::Archiv {}, "Archiv" }
+            Link { to: Route::Archiv {}, "{lang.archive()}" }
             Link { to: Route::Feedback {}, "Feedback" }
         }
 

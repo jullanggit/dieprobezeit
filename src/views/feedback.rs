@@ -1,4 +1,4 @@
-use crate::EditionId;
+use crate::{i18n, EditionId};
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -37,6 +37,8 @@ async fn send_feedback(data: FeedbackRequest) -> Result<()> {
 pub fn Feedback(edition_id: Option<EditionId>) -> Element {
     let mut submitted = use_signal(|| false);
 
+    let lang = i18n::get_lang();
+
     // hide feedback if it was submitted
     rsx! {
         if !*submitted.read() {
@@ -60,7 +62,7 @@ pub fn Feedback(edition_id: Option<EditionId>) -> Element {
                 br {}
                 textarea { id: "content", name: "content", style: "color: black;" }
                 br {}
-                label { "Optional: Email für weiteren Kontakt" }
+                label { "{lang.optional_email()}" }
                 br {}
                 input {
                     r#type: "text",
@@ -69,10 +71,10 @@ pub fn Feedback(edition_id: Option<EditionId>) -> Element {
                     style: "color: black;",
                 }
                 br {}
-                button { "Senden" }
+                button { "{lang.send()}" }
             }
         } else {
-            "Feedback erfolgreich gesendet"
+            "{lang.feedback_sent()}"
         }
     }
 }

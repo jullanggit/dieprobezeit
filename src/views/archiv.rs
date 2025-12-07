@@ -1,4 +1,4 @@
-use crate::{components::fetch_editions, Route};
+use crate::{components::fetch_editions, i18n, Route};
 use dioxus::prelude::*;
 
 const ARCHIV_CSS: Asset = asset!("/assets/styling/archiv.css");
@@ -14,11 +14,13 @@ pub fn Archiv() -> Element {
         })
     })?;
 
+    let lang = i18n::get_lang();
+
     rsx! {
         document::Link { rel: "stylesheet", href: ARCHIV_CSS }
 
         div { id: "archiv",
-            h1 { class: "text-4xl", "Archiv aller Ausgaben" }
+            h1 { class: "text-4xl", "{lang.archive_title()}" }
 
             match &*editions.read_unchecked() {
                 Some(Ok(editions)) => rsx! {
@@ -27,8 +29,8 @@ pub fn Archiv() -> Element {
                         br {}
                     }
                 },
-                Some(Err(e)) => rsx! { "Fehler beim laden des Archivs: {e}" },
-                None => rsx! { "Lade Archiv..." },
+                Some(Err(e)) => rsx! { "{lang.error_loading_archive()}: {e}" },
+                None => rsx! { "{lang.loading_archive()}" },
             }
 
             div {id: "feed-link",

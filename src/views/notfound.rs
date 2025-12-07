@@ -1,16 +1,25 @@
+use crate::i18n;
 use dioxus::prelude::*;
 
 /// The Home page component that will be rendered when the current route is `[Route::Home]`
 #[component]
 pub fn NotFound(segments: Vec<String>) -> Element {
+    let lang = i18n::get_lang();
+    let not_found = lang.page_not_found();
+    let (page, not_found) = {
+        let first_space = not_found.find(' ').unwrap_or(5);
+        // include space in both sub strings
+        (&not_found[0..=first_space], &not_found[first_space..])
+    };
+
     rsx! {
         div {
             h1 {
-                "Page "
+                "{page}"
                 for segment in segments {
                     "{segment}/"
                 }
-                " not Found"
+                "{not_found}"
             }
         }
     }

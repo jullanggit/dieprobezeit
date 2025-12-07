@@ -1,7 +1,41 @@
+const STORAGE_KEY: &str = "lang";
+pub const DEFAULT_LANG: Language = Language::DE;
+
+#[cfg(feature = "web")]
+fn storage() -> Option<web_sys::Storage> {
+    web_sys::window().and_then(|window| window.local_storage().ok().flatten())
+}
+
+#[cfg(feature = "web")]
+pub fn set_lang(language: Language) {
+    if let Some(storage) = storage() {
+        let _ = storage.set_item(STORAGE_KEY, language.to_str());
+    }
+}
+
+/// Get language setting from local storage. Set it to DEFAULT_LANG if that fails, and return it.
+/// Always returns DEFAULT_LANG on non-web builds.
+pub fn get_lang() -> Language {
+    #[cfg(feature = "web")]
+    {
+        storage()
+            .and_then(|storage| storage.get_item(STORAGE_KEY).ok().flatten())
+            .and_then(|lang| Language::from_str(&lang))
+            .unwrap_or_else(|| {
+                set_lang(DEFAULT_LANG);
+                DEFAULT_LANG
+            })
+    }
+    #[cfg(not(feature = "web"))]
+    {
+        DEFAULT_LANG
+    }
+}
+
 // target access pattern
 //
 // let translation = Translation::LANG;
-// let word = translation.word;
+// let word = translation.word();
 macro_rules! Translation {
     {[$(($flang:ident, $lang_str:literal)),*], $($key:ident: ($($lang:ident: $trans:literal),*))*} => {
         pub enum Language {
@@ -86,6 +120,10 @@ Translation! {
         DE: "Feedback erfolgreich gesendet",
         CH: "Feedback erfolgreich gsendet",
         EN: "Feedback sent succesfully")
+    archive_title: (
+        DE: "Archiv aller Ausgaben",
+        CH: "Archiv vo allne Usgabe",
+        EN: "Archive of all editions")
     error_loading_archive: (
         DE: "Fehler beim laden des Archivs",
         CH: "Fehler bim lade vom Archiv",
