@@ -9,7 +9,7 @@ use dioxus::prelude::*;
 pub fn Edition(id: EditionId) -> Element {
     let data = use_server_future(move || async move { view_edition(id).await })?;
 
-    let lang = i18n::get_lang();
+    let lang = i18n::use_lang();
 
     rsx! {
         div {
@@ -20,8 +20,8 @@ pub fn Edition(id: EditionId) -> Element {
                         img { src: "/svgs/{data.date}.svg", height: "100%", width: "auto" }
                     }
                 },
-                Some(Err(e)) => rsx! { "{lang.error_loading_edition()}: {e}" },
-                None => rsx! { "{lang.loading_edition()}" },
+                Some(Err(e)) => rsx! { "{lang.read().error_loading_edition()}: {e}" },
+                None => rsx! { "{lang.read().loading_edition()}" },
             }
             Feedback { edition_id: id }
         }

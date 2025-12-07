@@ -1,17 +1,40 @@
 #navbar {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
 }
 
 #navbar a {
-  color: #ffffff;
-  margin-right: 20px;
-  text-decoration: none;
-  transition: color 0.2s ease;
+    color: #ffffff;
+    margin-right: 20px;
+    text-decoration: none;
+    transition: color 0.2s ease;
 }
 
 #navbar a:hover {
-  cursor: pointer;
-  color: #91a4d2;
+    cursor: pointer;
+    color: #91a4d2;
+}
+
+#language-selector {
+    position: absolute;
+    right: 1em;
+    top: 1em;
+}
+
+/* make the select fit your theme */
+#language-selector select {
+    background-color: transparent;
+    color: #ffffff;
+    border: 1px solid #91a4d2;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 0.9rem;
+}
+
+#language-selector select option {
+    background-color: #1f2937;
+    color: #ffffff;
 }

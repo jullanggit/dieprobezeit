@@ -13,13 +13,13 @@ pub fn Archiv() -> Element {
         })
     })?;
 
-    let lang = i18n::get_lang();
+    let lang = i18n::use_lang();
 
     rsx! {
         document::Link { rel: "stylesheet", href: ARCHIV_CSS }
 
         div { id: "archiv",
-            h1 { class: "text-4xl", "{lang.archive_title()}" }
+            h1 { class: "text-4xl", "{lang.read().archive_title()}" }
 
             match &*editions.read_unchecked() {
                 Some(Ok(editions)) => rsx! {
@@ -28,8 +28,8 @@ pub fn Archiv() -> Element {
                         br {}
                     }
                 },
-                Some(Err(e)) => rsx! { "{lang.error_loading_archive()}: {e}" },
-                None => rsx! { "{lang.loading_archive()}" },
+                Some(Err(e)) => rsx! { "{lang.read().error_loading_archive()}: {e}" },
+                None => rsx! { "{lang.read().loading_archive()}" },
             }
 
             div {id: "feed-link",

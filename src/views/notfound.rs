@@ -3,8 +3,8 @@ use dioxus::prelude::*;
 
 #[component]
 pub fn NotFound(segments: Vec<String>) -> Element {
-    let lang = i18n::get_lang();
-    let not_found = lang.page_not_found();
+    let lang = i18n::use_lang();
+    let not_found = lang.read().page_not_found();
     let (page, not_found) = {
         let first_space = not_found.find(' ').unwrap_or(5);
         // include space in both sub strings

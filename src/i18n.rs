@@ -1,3 +1,5 @@
+use dioxus::prelude::*;
+
 const STORAGE_KEY: &str = "lang";
 pub const DEFAULT_LANG: Language = Language::DE;
 
@@ -6,10 +8,13 @@ fn storage() -> Option<web_sys::Storage> {
     web_sys::window().and_then(|window| window.local_storage().ok().flatten())
 }
 
-#[cfg(feature = "web")]
+/// Store language in localstorage. No-op on non-web builds
 pub fn set_lang(language: Language) {
-    if let Some(storage) = storage() {
-        let _ = storage.set_item(STORAGE_KEY, language.to_str());
+    #[cfg(feature = "web")]
+    {
+        if let Some(storage) = storage() {
+            let _ = storage.set_item(STORAGE_KEY, language.to_str());
+        }
     }
 }
 
@@ -32,12 +37,17 @@ pub fn get_lang() -> Language {
     }
 }
 
+pub fn use_lang() -> Signal<Language> {
+    use_context::<Signal<Language>>()
+}
+
 // target access pattern
 //
 // let translation = Translation::LANG;
 // let word = translation.word();
 macro_rules! Translation {
     {[$(($flang:ident, $lang_str:literal)),*], $($key:ident: ($($lang:ident: $trans:literal),*))*} => {
+        #[derive(Clone, Copy, Debug)]
         pub enum Language {
             $($flang),*
         }
@@ -56,6 +66,16 @@ macro_rules! Translation {
                     )*
                     _ => None
                 }
+            }
+            pub const fn display_name(&self) -> &'static str {
+                match self {
+                    $(
+                        Self::$flang => stringify!($flang),
+                    )*
+                }
+            }
+            pub const fn variants() -> [Self; [$(Self::$flang),*].len()] {
+                [$(Self::$flang),*]
             }
             $(
                 pub const fn $key(&self) -> &'static str {

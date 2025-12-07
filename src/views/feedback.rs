@@ -37,7 +37,7 @@ async fn send_feedback(data: FeedbackRequest) -> Result<()> {
 pub fn Feedback(edition_id: Option<EditionId>) -> Element {
     let mut submitted = use_signal(|| false);
 
-    let lang = i18n::get_lang();
+    let lang = i18n::use_lang();
 
     // hide feedback if it was submitted
     rsx! {
@@ -62,7 +62,7 @@ pub fn Feedback(edition_id: Option<EditionId>) -> Element {
                 br {}
                 textarea { id: "content", name: "content", style: "color: black;" }
                 br {}
-                label { "{lang.optional_email()}" }
+                label { "{lang.read().optional_email()}" }
                 br {}
                 input {
                     r#type: "text",
@@ -71,10 +71,10 @@ pub fn Feedback(edition_id: Option<EditionId>) -> Element {
                     style: "color: black;",
                 }
                 br {}
-                button { "{lang.send()}" }
+                button { "{lang.read().send()}" }
             }
         } else {
-            "{lang.feedback_sent()}"
+            "{lang.read().feedback_sent()}"
         }
     }
 }
