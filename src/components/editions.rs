@@ -1,4 +1,5 @@
 use dioxus::prelude::*;
+use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "server")]
 use crate::db::db;
@@ -23,8 +24,14 @@ pub async fn fetch_editions() -> Result<Vec<edition::Model>, ServerFnError> {
         .map_err(|err| ServerFnError::new(format!("{err}")))
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct EditionWithHtml {
+    pub edition: edition::Model,
+    pub html: String,
+}
+
 #[server]
-pub async fn view_edition(id: i32) -> Result<edition::Model, ServerFnError> {
+pub async fn view_edition(id: i32) -> Result<EditionWithHtml, ServerFnError> {
     let db = db();
 
     // increment view count
@@ -38,9 +45,17 @@ pub async fn view_edition(id: i32) -> Result<edition::Model, ServerFnError> {
         .await; // ignore error, TODO: log instead
 
     // get updated entity
-    edition::Entity::find_by_id(id)
+    let edition = edition::Entity::find_by_id(id)
         .one(db)
         .await
         .map_err(|err| ServerFnError::new(format!("{err}")))?
-        .ok_or(ServerFnError::new(format!("Edition {id} not found")))
+        .ok_or(ServerFnError::new(format!("Edition {id} not found")))?;
+
+    let html_path = format!("html/{}.html", edition.date);
+
+    let html = tokio::fs::read_to_string(&html_path)
+        .await
+        .map_err(|err| ServerFnError::new(format!("Failed to read html at {html_path}: {err}")))?;
+
+    Ok(EditionWithHtml { edition, html })
 }

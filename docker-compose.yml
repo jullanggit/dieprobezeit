@@ -3,7 +3,7 @@ services:
     # build: .
     image: ghcr.io/jullanggit/dieprobezeit-backend:latest
     volumes:
-      - ./svgs:/app/svgs:ro
+      - ./html:/app/html:ro
       - ./mng.db:/app/mng.db:rw
     network_mode: "host"
     labels:
@@ -14,7 +14,7 @@ services:
     image: pingooio/pingoo:latest
     restart: unless-stopped
     network_mode: "host"
-    volumes: 
+    volumes:
       - ./pingoo.yml:/etc/pingoo/pingoo.yml:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     depends_on:

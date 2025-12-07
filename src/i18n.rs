@@ -47,7 +47,7 @@ pub fn use_lang() -> Signal<Language> {
 // let word = translation.word();
 macro_rules! Translation {
     {[$(($flang:ident, $lang_str:literal)),*], $($key:ident: ($($lang:ident: $trans:literal),*))*} => {
-        #[derive(Clone, Copy, Debug)]
+        #[derive(Clone, Copy, Debug, PartialEq)]
         pub enum Language {
             $($flang),*
         }

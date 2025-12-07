@@ -64,7 +64,7 @@ fn main() {
             .expect("Failed to run migrations");
 
         let router = dioxus::server::router(App)
-            .nest_service("/svgs", tower_http::services::ServeDir::new("svgs"));
+            .nest_service("/html", tower_http::services::ServeDir::new("html"));
 
         Ok(router)
     });
@@ -76,7 +76,20 @@ fn main() {
 /// Components should be annotated with `#[component]` to support props, better error messages, and autocomplete
 #[component]
 fn App() -> Element {
-    use_context_provider(|| Signal::new(i18n::get_lang()));
+    // Server-side default
+    let mut lang = Signal::new(i18n::DEFAULT_LANG);
+
+    // Update language client side
+    use_effect({
+        move || {
+            let stored = i18n::get_lang();
+            if *lang.read() != stored {
+                lang.set(stored);
+            }
+        }
+    });
+
+    use_context_provider(|| lang);
 
     // The `rsx!` macro lets us define HTML inside of rust. It expands to an Element with all of our HTML inside.
     rsx! {
