@@ -16,10 +16,10 @@ pub fn Navbar() -> Element {
         document::Link { rel: "stylesheet", href: NAVBAR_CSS }
 
         div { id: "navbar",
-            div {id: "navbar-links"
-            Link { to: Route::Home {}, "Home" }
-            Link { to: Route::Archiv {}, "{lang.read().archive()}" }
-            Link { to: Route::Feedback {}, "Feedback" }
+            div { id: "navbar-links",
+                Link { to: Route::Home {}, "Home" }
+                Link { to: Route::Archiv {}, "{lang.read().archive()}" }
+                Link { to: Route::Feedback {}, "Feedback" }
             }
 
             div { id: "language-selector",
@@ -34,10 +34,7 @@ pub fn Navbar() -> Element {
                     },
 
                     for variant in i18n::Language::variants() {
-                        option {
-                            value: "{variant.to_str()}",
-                            "{variant.display_name()}"
-                        }
+                        option { value: "{variant.to_str()}", "{variant.display_name()}" }
                     }
                 }
             }

@@ -32,7 +32,8 @@ pub fn Archiv() -> Element {
                 None => rsx! { "{lang.read().loading_archive()}" },
             }
 
-            div {id: "feed-link",
+            div {
+                id: "feed-link",
                 style: "margin-top: 2em; text-align: center;",
                 Link {
                     // use External so the Router doesn't hijack the link
