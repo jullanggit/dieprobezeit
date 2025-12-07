@@ -6,13 +6,15 @@ use views::*;
 
 use crate::components::EditionId;
 
-#[cfg(feature = "server")]
-mod feed;
 /// Define a components module that contains all shared components for our app.
 mod components;
 mod db;
+#[cfg(feature = "server")]
+mod feed;
 /// Define a views module that contains the UI for all Layouts and Routes for our app.
 mod views;
+
+mod i18n;
 
 /// The Route enum is used to define the structure of internal routes in our app. All route enums need to derive
 /// the [`Routable`] trait, which provides the necessary methods for the router to work.
