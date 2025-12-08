@@ -93,9 +93,9 @@ macro_rules! Translation {
 Translation! {
     [(DE, "de"), (CH, "ch"), (EN, "en")],
     welcome: (
-        DE: "Willkommen zur monatlichen Ausgabe der Probe Zeit!",
-        CH: "Willkomme zur monatliche Usgab vo de Probe Ziit!",
-        EN: "Welcome to the monthly Edition of the Probe Zeit")
+        DE: "Willkommen zu der Probe Zeit!",
+        CH: "Willkomme zur Probe Ziit!",
+        EN: "Welcome to the Probe Zeit")
     newest_edition: (
         DE: "Neuste Ausgabe",
         CH: "Neusti Usgab",
@@ -109,12 +109,12 @@ Translation! {
         CH: "Usgab isch am lade...",
         EN: "Loading edition...")
     error_loading_editions: (
-        DE: "Fehler beim laden der Ausgaben",
-        CH: "Fehler bim lade vo de Usgabe",
+        DE: "Fehler beim Laden der Ausgaben",
+        CH: "Fehler bim Lade vo de Usgabe",
         EN: "Error loading editions")
     error_loading_edition: (
-        DE: "Fehler beim laden der Ausgabe",
-        CH: "Fehler bim lade vo de Usgab",
+        DE: "Fehler beim Laden der Ausgabe",
+        CH: "Fehler bim Lade vo de Usgab",
         EN: "Error loading edition")
     no_edition_found: (
         DE: "Keine Ausgabe gefunden",
@@ -138,15 +138,15 @@ Translation! {
         EN: "Send")
     feedback_sent: (
         DE: "Feedback erfolgreich gesendet",
-        CH: "Feedback erfolgreich gsendet",
+        CH: "Feedback erfolgriich gsendet",
         EN: "Feedback sent succesfully")
     archive_title: (
         DE: "Archiv aller Ausgaben",
         CH: "Archiv vo allne Usgabe",
         EN: "Archive of all editions")
     error_loading_archive: (
-        DE: "Fehler beim laden des Archivs",
-        CH: "Fehler bim lade vom Archiv",
+        DE: "Fehler beim Laden des Archivs",
+        CH: "Fehler bim Lade vom Archiv",
         EN: "Error loading archive")
     loading_archive: (
         DE: "Archiv wird geladen...",
