@@ -15,9 +15,11 @@ pub fn Edition(id: EditionId) -> Element {
         div {
             match &*data.read_unchecked() {
                 Some(Ok(data)) => rsx! {
-                    h3 { class: "text-2xl", "{data.label()}" }
-                    div { style: "display: inline-block;",
-                        img { src: "/svgs/{data.date}.svg", height: "100%", width: "auto" }
+                    h3 { class: "text-2xl", "{data.edition.label()}" }
+                    for i in 1..=data.num_pages {
+                        div { style: "display: inline-block;",
+                            object { data: "/svgs/{data.edition.date}/-{i}.svg", height: "100%", width: "auto" }
+                        }
                     }
                 },
                 Some(Err(e)) => rsx! { "{lang.read().error_loading_edition()}: {e}" },
