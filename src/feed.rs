@@ -1,10 +1,12 @@
-use crate::{components::fetch_editions, URL};
+use crate::components::fetch_editions;
 use atom_syndication::{EntryBuilder, FeedBuilder, FixedDateTime, LinkBuilder, Person};
 use dioxus::{
     fullstack::response::{IntoResponse, Response},
     prelude::*,
     server::http::header,
 };
+
+const URL: &str = "https://dieprobezeit.ch";
 
 #[get("/feed.xml")]
 async fn atom_feed() -> Result<Response> {

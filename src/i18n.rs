@@ -1,11 +1,12 @@
 use dioxus::prelude::*;
-use web_sys::wasm_bindgen::JsCast;
 
 const STORAGE_KEY: &str = "lang";
 pub const DEFAULT_LANG: Language = Language::DE;
 
 #[cfg(feature = "web")]
 fn html_document() -> Option<web_sys::HtmlDocument> {
+    use web_sys::wasm_bindgen::JsCast;
+
     web_sys::window()?
         .document()?
         .dyn_into::<web_sys::HtmlDocument>()
@@ -13,6 +14,7 @@ fn html_document() -> Option<web_sys::HtmlDocument> {
 }
 
 /// Store language to cookies. No-op on non-web builds
+#[allow(unused_variables)]
 pub fn set_lang(language: Language) {
     #[cfg(feature = "web")]
     {
@@ -71,7 +73,7 @@ macro_rules! Translation {
             $($flang),*
         }
         impl Language {
-            pub const fn to_str(&self) -> &'static str {
+            pub const fn to_str(self) -> &'static str {
                 match self {
                     $(
                         Self::$flang => $lang_str,

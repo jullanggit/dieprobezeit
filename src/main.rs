@@ -47,8 +47,6 @@ enum Route {
 const MAIN_CSS: Asset = asset!("/assets/styling/main.css");
 const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
 
-const URL: &str = "https://dieprobezeit.ch";
-
 fn main() {
     #[cfg(not(feature = "server"))]
     dioxus::launch(App);
