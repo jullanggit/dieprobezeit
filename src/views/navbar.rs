@@ -24,7 +24,6 @@ pub fn Navbar() -> Element {
 
             div { id: "language-selector",
                 select {
-                    value: "{lang.read().to_str()}",
                     onchange: move |event| {
                         let value = event.value();
                         if let Some(language) = i18n::Language::from_str(&value) {
@@ -34,7 +33,11 @@ pub fn Navbar() -> Element {
                     },
 
                     for variant in i18n::Language::variants() {
-                        option { value: "{variant.to_str()}", "{variant.display_name()}" }
+                        option {
+                            value: "{variant.to_str()}",
+                            selected: *lang.read() == variant,
+                            "{variant.display_name()}"
+                        }
                     }
                 }
             }

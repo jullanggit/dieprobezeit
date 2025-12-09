@@ -18,7 +18,11 @@ pub fn Edition(id: EditionId) -> Element {
                     h3 { class: "text-2xl", "{data.edition.label()}" }
                     for i in 1..=data.num_pages {
                         div { style: "display: inline-block;",
-                            object { data: "/svgs/{data.edition.date}/-{i}.svg", height: "100%", width: "auto" }
+                            object {
+                                data: "/svgs/{data.edition.date}/-{i}.svg",
+                                height: "100%",
+                                width: "auto",
+                            }
                         }
                     }
                 },

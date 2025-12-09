@@ -28,6 +28,7 @@ tower-http = { version = "0.6.6", optional = true, features = ["fs"] }
 # workaround for wasm-bindgen-issue
 web-sys = { version = "=0.3.78", features = [
   "Window",
+  "HtmlDocument",
   "Storage"
 ] }
 

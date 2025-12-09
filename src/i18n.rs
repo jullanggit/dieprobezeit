@@ -1,39 +1,58 @@
 use dioxus::prelude::*;
+use web_sys::wasm_bindgen::JsCast;
 
 const STORAGE_KEY: &str = "lang";
 pub const DEFAULT_LANG: Language = Language::DE;
 
 #[cfg(feature = "web")]
-fn storage() -> Option<web_sys::Storage> {
-    web_sys::window().and_then(|window| window.local_storage().ok().flatten())
+fn html_document() -> Option<web_sys::HtmlDocument> {
+    web_sys::window()?
+        .document()?
+        .dyn_into::<web_sys::HtmlDocument>()
+        .ok()
 }
 
-/// Store language in localstorage. No-op on non-web builds
+/// Store language to cookies. No-op on non-web builds
 pub fn set_lang(language: Language) {
     #[cfg(feature = "web")]
     {
-        if let Some(storage) = storage() {
-            let _ = storage.set_item(STORAGE_KEY, language.to_str());
+        if let Some(document) = html_document() {
+            let _ = document.set_cookie(&format!(
+                "{STORAGE_KEY}={}; Path=/; Max-Age=3153600; SameSite=Lax",
+                language.to_str()
+            ));
         }
     }
 }
 
-/// Get language setting from local storage. Set it to DEFAULT_LANG if that fails, and return it.
-/// Always returns DEFAULT_LANG on non-web builds.
+/// Get language setting from cookies. Returns DEFAULT_LANG on failure.
+/// Also sets 'lang' to DEFAULT lang on failure on web builds.
 pub fn get_lang() -> Language {
     #[cfg(feature = "web")]
     {
-        storage()
-            .and_then(|storage| storage.get_item(STORAGE_KEY).ok().flatten())
-            .and_then(|lang| Language::from_str(&lang))
+        html_document()
+            .and_then(|html_document| html_document.cookie().ok())
+            .and_then(|string| {
+                string.split(';').find_map(|kv| {
+                    let (key, value) = kv.trim().split_once('=')?;
+                    key.eq(STORAGE_KEY)
+                        .then(|| Language::from_str(value))
+                        .flatten()
+                })
+            })
             .unwrap_or_else(|| {
                 set_lang(DEFAULT_LANG);
                 DEFAULT_LANG
             })
     }
-    #[cfg(not(feature = "web"))]
+    #[cfg(feature = "server")]
     {
-        DEFAULT_LANG
+        use dioxus::fullstack::{headers::HeaderMapExt, Cookie, FullstackContext};
+
+        FullstackContext::current()
+            .and_then(|context| context.parts_mut().headers.typed_get::<Cookie>())
+            .and_then(|cookie| cookie.get(STORAGE_KEY).and_then(Language::from_str))
+            .unwrap_or(DEFAULT_LANG)
     }
 }
 
@@ -47,7 +66,7 @@ pub fn use_lang() -> Signal<Language> {
 // let word = translation.word();
 macro_rules! Translation {
     {[$(($flang:ident, $lang_str:literal)),*], $($key:ident: ($($lang:ident: $trans:literal),*))*} => {
-        #[derive(Clone, Copy, Debug)]
+        #[derive(Clone, Copy, Debug, PartialEq)]
         pub enum Language {
             $($flang),*
         }
