@@ -24,8 +24,10 @@ pub fn Archiv() -> Element {
             match &*editions.read_unchecked() {
                 Some(Ok(editions)) => rsx! {
                     for edition in editions {
-                        Link { to: Route::Edition { id: edition.id }, "{edition.label()}" }
-                        br {}
+                        if !edition.hidden {
+                            Link { to: Route::Edition { id: edition.id }, "{edition.label()}" }
+                            br {}
+                        }
                     }
                 },
                 Some(Err(e)) => rsx! { "{lang.read().error_loading_archive()}: {e}" },
