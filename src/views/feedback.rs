@@ -36,6 +36,8 @@ async fn send_feedback(data: FeedbackRequest) -> Result<()> {
 #[component]
 pub fn Feedback(edition_id: Option<EditionId>) -> Element {
     let mut submitted = use_signal(|| false);
+    let mut content = use_signal(String::new);
+    let mut email = use_signal(String::new);
 
     let lang = i18n::use_lang();
 
@@ -55,12 +57,20 @@ pub fn Feedback(edition_id: Option<EditionId>) -> Element {
                         .await
                         .is_ok()
                     {
-                        *submitted.write() = true;
+                        content.set(String::new());
+                        email.set(String::new());
+                        submitted.set(true);
                     }
                 },
                 label { "Feedback" }
                 br {}
-                textarea { id: "content", name: "content", style: "color: black;" }
+                textarea {
+                    id: "content",
+                    name: "content",
+                    style: "color: black;",
+                    value: "{content}",
+                    oninput: move |evt| content.set(evt.value()),
+                }
                 br {}
                 label { "{lang.read().optional_email()}" }
                 br {}
@@ -69,6 +79,8 @@ pub fn Feedback(edition_id: Option<EditionId>) -> Element {
                     id: "email",
                     name: "email",
                     style: "color: black;",
+                    value: "{email}",
+                    oninput: move |evt| email.set(evt.value()),
                 }
                 br {}
                 button { "{lang.read().send()}" }

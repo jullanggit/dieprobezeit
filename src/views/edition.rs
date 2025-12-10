@@ -17,7 +17,8 @@ pub fn Edition(id: EditionId) -> Element {
                 Some(Ok(data)) => rsx! {
                     h3 { class: "text-2xl", "{data.edition.label()}" }
                     for i in 1..=data.num_pages {
-                        div {id: "edition-page-{i}",
+                        div {
+                            id: "edition-page-{i}",
                             style: "display: inline-block; background-color: white;",
                             object {
                                 data: "/svgs/{data.edition.date}/-{i}.svg",

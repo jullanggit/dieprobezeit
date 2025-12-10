@@ -17,7 +17,10 @@ pub fn Home() -> Element {
 
             match &*editions.read_unchecked() {
                 Some(Ok(editions)) => {
-                    let newest = editions.iter().filter(|edition| !edition.hidden).max_by_key(|element| element.date);
+                    let newest = editions
+                        .iter()
+                        .filter(|edition| !edition.hidden)
+                        .max_by_key(|element| element.date);
                     match newest {
                         None => rsx! { "{lang.read().no_edition_found()}" },
                         Some(newest) => rsx! {
