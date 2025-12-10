@@ -17,7 +17,11 @@ async fn atom_feed() -> Result<Response> {
         uri: None,
     };
 
-    let editions = fetch_editions().await?;
+    let editions = {
+        let mut initial = fetch_editions().await?;
+        initial.retain(|edition| !edition.hidden);
+        initial
+    };
 
     let time_to_chrono = |date| FixedDateTime::parse_from_rfc3339(&format!("{}T00:00:00Z", date));
 
