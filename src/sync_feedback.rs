@@ -9,10 +9,13 @@ use crate::db::{db, entities::feedback};
 pub async fn sync_feedback_to_kdrive() -> Result<()> {
     let drive_id = tokio::fs::read_to_string("drive-id")
         .await
-        .map_err(|err| "Failed to retrieve drive id: {err}");
+        .map_err(|err| ServerFnError::new(format!("Failed to read drive id: {err}")));
     let oath_token = tokio::fs::read_to_string("oauth-token")
         .await
-        .map_err(|err| "Failed to retrieve drive id: {err}");
+        .map_err(|err| ServerFnError::new(format!("Failed to read oauth token: {err}")));
+    let directory_id = tokio::fs::read_to_string("directory-id")
+        .await
+        .map_err(|err| ServerFnError::new(format!("Failed to read directory id: {err}")));
 
     let feedbacks = feedback::Entity::find()
         .all(db())
