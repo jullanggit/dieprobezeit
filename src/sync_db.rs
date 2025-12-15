@@ -1,6 +1,9 @@
 use std::sync::LazyLock;
 
-use crate::db::{db, entities::feedback};
+use crate::db::{
+    db,
+    entities::{edition, feedback},
+};
 use dioxus::{
     fullstack::{
         reqwest::{self, Url},
@@ -18,8 +21,35 @@ struct UploadResponse {
     result: String,
 }
 
-#[server]
 pub async fn sync_feedback_to_kdrive() -> Result<()> {
+    kdrive_sync_inner::<feedback::Entity>("feedback", "Feedback,E-Mail", |feedback| {
+        format!(
+            "{},{}\n",
+            feedback.content,
+            feedback.email.unwrap_or_default()
+        )
+    })
+    .await
+}
+
+pub async fn sync_editions_to_kdrive() -> Result<()> {
+    kdrive_sync_inner::<edition::Entity>("edition", "Date,Title,Views,Hidden", |edition| {
+        format!(
+            "{},{},{},{}\n",
+            edition.date,
+            edition.title.unwrap_or_default(),
+            edition.views,
+            edition.hidden,
+        )
+    })
+    .await
+}
+
+async fn kdrive_sync_inner<Entity: EntityTrait>(
+    entity_name: &str,
+    columns: &str,
+    format_entity: impl Fn(Entity::Model) -> String,
+) -> Result<()> {
     let read = async |file: &str| {
         tokio::fs::read_to_string(format!("kdrive/{file}"))
             .await
@@ -30,18 +60,14 @@ pub async fn sync_feedback_to_kdrive() -> Result<()> {
     let oauth_token = read("oauth-token").await?;
     let directory_id = read("directory-id").await?;
 
-    let feedbacks = feedback::Entity::find()
-        .all(db())
-        .await
-        .map_err(|err| ServerFnError::new(format!("Failed to get all feedback entities: {err}")))?;
+    let entities = Entity::find().all(db()).await.map_err(|err| {
+        ServerFnError::new(format!("Failed to get all {entity_name} entities: {err}"))
+    })?;
 
-    let csv = std::iter::once("Feedback,E-Mail\n".into())
-        .chain(feedbacks.into_iter().map(|feedback| {
-            format!(
-                "{},{}\n",
-                feedback.content,
-                feedback.email.unwrap_or_default()
-            )
+    let csv = std::iter::once(format!("{columns}\n"))
+        .chain(entities.into_iter().map(format_entity).map(|mut string| {
+            string.push('\n');
+            string
         }))
         .collect::<String>();
 
@@ -50,7 +76,7 @@ pub async fn sync_feedback_to_kdrive() -> Result<()> {
         &[
             ("directory_id", directory_id),
             ("conflict", "version".into()),
-            ("file_name", "feedback.csv".into()),
+            ("file_name", format!("{entity_name}.csv")),
             ("total_size", csv.len().to_string()),
         ],
     )

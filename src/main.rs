@@ -1,7 +1,6 @@
 // The dioxus prelude contains a ton of common items used in dioxus apps. It's a good idea to import wherever you
 // need dioxus
 use crate::components::EditionId;
-use crate::sync_feedback::sync_feedback_to_kdrive;
 use dioxus::prelude::*;
 use std::time::Duration;
 use tokio::time::interval;
@@ -9,7 +8,6 @@ use views::*;
 
 /// Define a components module that contains all shared components for our app.
 mod components;
-/// Define a views module that contains the UI for all Layouts and Routes for our app.
 mod views;
 
 mod db;
@@ -17,7 +15,7 @@ mod db;
 mod feed;
 mod i18n;
 #[cfg(feature = "server")]
-mod sync_feedback;
+mod sync_db;
 
 /// The Route enum is used to define the structure of internal routes in our app. All route enums need to derive
 /// the [`Routable`] trait, which provides the necessary methods for the router to work.
@@ -69,13 +67,22 @@ fn main() {
 
         // periodically sync feedback to kdrive
         tokio::spawn(async {
+            use crate::sync_db::sync_editions_to_kdrive;
+            use crate::sync_db::sync_feedback_to_kdrive;
+
             let mut interval = interval(Duration::from_mins(1));
 
             loop {
                 interval.tick().await;
+
                 let res = sync_feedback_to_kdrive().await;
                 if let Err(e) = res {
                     warn!("Failed to sync feedback to kdrive: {e}");
+                }
+
+                let res = sync_editions_to_kdrive().await;
+                if let Err(e) = res {
+                    warn!("Failed to sync editions to kdrive: {e}");
                 }
             }
         });
