@@ -1,10 +1,11 @@
 // The dioxus prelude contains a ton of common items used in dioxus apps. It's a good idea to import wherever you
 // need dioxus
-use dioxus::prelude::*;
-
-use views::*;
-
 use crate::components::EditionId;
+use crate::sync_feedback::sync_feedback_to_kdrive;
+use dioxus::prelude::*;
+use std::time::Duration;
+use tokio::time::interval;
+use views::*;
 
 /// Define a components module that contains all shared components for our app.
 mod components;
@@ -65,6 +66,19 @@ fn main() {
 
         let router = dioxus::server::router(App)
             .nest_service("/svgs", tower_http::services::ServeDir::new("svgs"));
+
+        // periodically sync feedback to kdrive
+        tokio::spawn(async {
+            let mut interval = interval(Duration::from_mins(1));
+
+            loop {
+                interval.tick().await;
+                let res = sync_feedback_to_kdrive().await;
+                if let Err(e) = res {
+                    warn!("Failed to sync feedback to kdrive: {e}");
+                }
+            }
+        });
 
         Ok(router)
     });

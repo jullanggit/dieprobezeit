@@ -1,21 +1,34 @@
-use std::iter::chain;
-
-use dioxus::prelude::*;
-use sea_orm::EntityTrait;
+use std::sync::LazyLock;
 
 use crate::db::{db, entities::feedback};
+use dioxus::{
+    fullstack::{
+        reqwest::{self, Url},
+        reqwest_response_to_serverfn_err,
+    },
+    prelude::*,
+};
+use sea_orm::EntityTrait;
+use serde::Deserialize;
+
+static CLIENT: LazyLock<reqwest::Client> = LazyLock::new(reqwest::Client::new);
+
+#[derive(Deserialize)]
+struct UploadResponse {
+    result: String,
+}
 
 #[server]
 pub async fn sync_feedback_to_kdrive() -> Result<()> {
-    let drive_id = tokio::fs::read_to_string("drive-id")
-        .await
-        .map_err(|err| ServerFnError::new(format!("Failed to read drive id: {err}")));
-    let oath_token = tokio::fs::read_to_string("oauth-token")
-        .await
-        .map_err(|err| ServerFnError::new(format!("Failed to read oauth token: {err}")));
-    let directory_id = tokio::fs::read_to_string("directory-id")
-        .await
-        .map_err(|err| ServerFnError::new(format!("Failed to read directory id: {err}")));
+    let read = async |file: &str| {
+        tokio::fs::read_to_string(file)
+            .await
+            .map_err(|err| ServerFnError::new(format!("Failed to read {file}: {err}")))
+    };
+
+    let drive_id = read("drive-id").await?;
+    let oauth_token = read("oauth-token").await?;
+    let directory_id = read("directory-id").await?;
 
     let feedbacks = feedback::Entity::find()
         .all(db())
@@ -32,5 +45,30 @@ pub async fn sync_feedback_to_kdrive() -> Result<()> {
         }))
         .collect::<String>();
 
-    Ok(())
+    let url = Url::parse_with_params(
+        &format!("https://api.infomaniak.com/3/drive/{drive_id}/upload"),
+        &[
+            ("directory_id", directory_id),
+            ("conflict", "version".into()),
+            ("file_name", "feedback.csv".into()),
+            ("total_size", csv.len().to_string()),
+        ],
+    )
+    .map_err(|err| ServerFnError::new(format!("Failed to construct url: {err}")))?;
+
+    let response = CLIENT
+        .post(url)
+        .bearer_auth(oauth_token)
+        .body(csv)
+        .send()
+        .await
+        .map_err(reqwest_response_to_serverfn_err)?;
+
+    let json: UploadResponse = response.json().await?;
+
+    if &json.result == "success" {
+        Ok(())
+    } else {
+        Err(ServerFnError::new("Failed to upload file").into())
+    }
 }
