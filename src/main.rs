@@ -3,7 +3,6 @@
 use crate::components::EditionId;
 use dioxus::prelude::*;
 use std::time::Duration;
-use tokio::time::interval;
 use views::*;
 
 /// Define a components module that contains all shared components for our app.
@@ -69,6 +68,7 @@ fn main() {
         tokio::spawn(async {
             use crate::sync_db::sync_editions_to_kdrive;
             use crate::sync_db::sync_feedback_to_kdrive;
+            use tokio::time::interval;
 
             let mut interval = interval(Duration::from_mins(1));
 
