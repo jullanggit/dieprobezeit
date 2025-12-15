@@ -25,8 +25,8 @@ pub async fn sync_feedback_to_kdrive() -> Result<()> {
     kdrive_sync_inner::<feedback::Entity>("feedback", "Feedback,E-Mail", |feedback| {
         format!(
             "{},{}\n",
-            feedback.content,
-            feedback.email.unwrap_or_default()
+            csv_str(feedback.content),
+            csv_str(feedback.email.unwrap_or_default())
         )
     })
     .await
@@ -37,7 +37,7 @@ pub async fn sync_editions_to_kdrive() -> Result<()> {
         format!(
             "{},{},{},{}\n",
             edition.date,
-            edition.title.unwrap_or_default(),
+            csv_str(edition.title.unwrap_or_default()),
             edition.views,
             edition.hidden,
         )
@@ -65,10 +65,7 @@ async fn kdrive_sync_inner<Entity: EntityTrait>(
     })?;
 
     let csv = std::iter::once(format!("{columns}\n"))
-        .chain(entities.into_iter().map(format_entity).map(|mut string| {
-            string.push('\n');
-            string
-        }))
+        .chain(entities.into_iter().map(format_entity))
         .collect::<String>();
 
     let url = Url::parse_with_params(
@@ -100,4 +97,9 @@ async fn kdrive_sync_inner<Entity: EntityTrait>(
     } else {
         Err(ServerFnError::new("Failed to upload file").into())
     }
+}
+
+/// Escape rust String to a csv string
+fn csv_str(string: String) -> String {
+    format!("\"{}\"", string.replace('"', "\"\""))
 }
