@@ -21,7 +21,7 @@ struct UploadResponse {
 #[server]
 pub async fn sync_feedback_to_kdrive() -> Result<()> {
     let read = async |file: &str| {
-        tokio::fs::read_to_string(file)
+        tokio::fs::read_to_string(format!("kdrive/{file}"))
             .await
             .map_err(|err| ServerFnError::new(format!("Failed to read {file}: {err}")))
     };

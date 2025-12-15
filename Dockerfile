@@ -6,7 +6,7 @@ WORKDIR /app
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 # install dx through cargo-binstall, as cargo-binstall is quite a lot smaller
-RUN cargo install cargo-binstall 
+RUN cargo install cargo-binstall
 RUN cargo binstall dioxus-cli
 
 COPY . .
@@ -26,6 +26,7 @@ COPY --from=builder /app/target/dx/dieprobezeit/release/web/dieprobezeit /app/di
 COPY --from=builder /app/target/dx/dieprobezeit/release/web/public /app/public
 
 RUN mkdir svgs
+RUN mkdir kdrive
 
 EXPOSE 8080
 CMD ["./dieprobezeit"]
