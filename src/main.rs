@@ -77,12 +77,12 @@ fn main() {
 
                 let res = sync_feedback_to_kdrive().await;
                 if let Err(e) = res {
-                    warn!("Failed to sync feedback to kdrive: {e}");
+                    error!("Failed to sync feedback to kdrive: {e}");
                 }
 
                 let res = sync_editions_to_kdrive().await;
                 if let Err(e) = res {
-                    warn!("Failed to sync editions to kdrive: {e}");
+                    error!("Failed to sync editions to kdrive: {e}");
                 }
             }
         });

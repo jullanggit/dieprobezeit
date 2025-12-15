@@ -72,19 +72,22 @@ async fn kdrive_sync_inner<Entity: EntityTrait>(
         .collect::<String>();
 
     let url = Url::parse_with_params(
-        &format!("https://api.infomaniak.com/3/drive/{drive_id}/upload"),
+        &format!(
+            "https://api.infomaniak.com/3/drive/{}/upload",
+            drive_id.trim()
+        ),
         &[
-            ("directory_id", directory_id),
-            ("conflict", "version".into()),
-            ("file_name", format!("{entity_name}.csv")),
-            ("total_size", csv.len().to_string()),
+            ("directory_id", directory_id.trim()),
+            ("conflict", "version"),
+            ("file_name", &format!("{entity_name}.csv")),
+            ("total_size", &csv.len().to_string()),
         ],
     )
     .map_err(|err| ServerFnError::new(format!("Failed to construct url: {err}")))?;
 
     let response = CLIENT
         .post(url)
-        .bearer_auth(oauth_token)
+        .bearer_auth(oauth_token.trim())
         .body(csv)
         .send()
         .await
