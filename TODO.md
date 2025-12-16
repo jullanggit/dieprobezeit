@@ -1,5 +1,4 @@
-- Feedback
-  - sync to kdrive csv file
 - Website
   - Fix links
   - Fix weird layout on ipads
+  - translate titles
