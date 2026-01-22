@@ -25,7 +25,7 @@ COPY --from=builder /app/target/dx/dieprobezeit/release/web/dieprobezeit /app/di
 # static files
 COPY --from=builder /app/target/dx/dieprobezeit/release/web/public /app/public
 
-RUN mkdir svgs
+RUN mkdir pdfs
 RUN mkdir kdrive
 
 EXPOSE 8080
