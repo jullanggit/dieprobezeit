@@ -28,6 +28,8 @@
             rustToolchain
             rust-analyzer
             dioxus-cli
+	    podman
+	    podman-compose
           ];
 
           # Apparently helps rust-analyzer find std sources reliably

@@ -1,5 +1,5 @@
 # --- build ---
-FROM rust:latest AS builder
+FROM docker.io/library/rust:latest AS builder
 
 WORKDIR /app
 
@@ -16,7 +16,7 @@ RUN dx bundle --web --release
 
 
 # --- runtime ---
-FROM debian:stable-slim
+FROM docker.io/library/debian:stable-slim
 
 WORKDIR /app
 
