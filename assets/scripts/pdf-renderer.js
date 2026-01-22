@@ -1,11 +1,13 @@
 import * as pdfjsLib from "https://unpkg.com/pdfjs-dist@latest/build/pdf.mjs";
 import * as pdfjsViewer from "https://unpkg.com/pdfjs-dist@latest/web/pdf_viewer.mjs";
 
+// how much of the page should be vertically visible, at a minimum
+const MIN_VISIBLE_PAGE_FRACTION = 0.7;
+
 const PDFJS_CDN_BASE = "https://unpkg.com/pdfjs-dist@latest";
 const CONTAINER_SELECTOR = ".pdfjs-container[data-pdf-src]";
 const renderState = new WeakMap();
 
-// IMPORTANT: always set workerSrc (your old `!== undefined` guard blocked it).
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   `${PDFJS_CDN_BASE}/build/pdf.worker.min.mjs`;
 
@@ -47,7 +49,6 @@ async function renderPdf(container) {
   try {
     const pdf = await loadingTask.promise;
 
-    // v5+: PDFLinkService requires an EventBus. :contentReference[oaicite:4]{index=4}
     const eventBus = new pdfjsViewer.EventBus();
     const linkService = new pdfjsViewer.PDFLinkService({
       eventBus,
@@ -56,7 +57,6 @@ async function renderPdf(container) {
     });
     linkService.setDocument(pdf, null);
 
-    // v5: use document’s annotationStorage. :contentReference[oaicite:5]{index=5}
     const annotationStorage = pdf.annotationStorage;
 
     const pageViews = new Map();
@@ -104,7 +104,13 @@ async function renderPdf(container) {
         container.parentElement?.clientWidth ||
         baseViewport.width;
 
-      const scale = availableWidth / baseViewport.width;
+      const scaleToWidth = availableWidth / baseViewport.width;
+
+      const viewportH = window.visualViewport?.height ?? window.innerHeight;
+      const scaleMinVertical = viewportH / (baseViewport.height * MIN_VISIBLE_PAGE_FRACTION);
+
+      const scale = Math.min(scaleToWidth, scaleMinVertical);
+
       const viewport = page.getViewport({ scale });
 
       const pageDiv = document.createElement("div");
@@ -130,7 +136,6 @@ async function renderPdf(container) {
 
       container.appendChild(pageDiv);
 
-      // Prefer the modern `canvas` param (canvasContext still works, but is legacy).
       await page.render({
         canvas,
         viewport,
@@ -139,7 +144,6 @@ async function renderPdf(container) {
 
       const annotations = await page.getAnnotations({ intent: "display" });
 
-      // v4+ / v5+: AnnotationLayer is instantiated, then .render(...) called. :contentReference[oaicite:6]{index=6}
       const annotationCanvasMap = new Map();
       const annotationLayer = new pdfjsLib.AnnotationLayer({
         div: annotationLayerDiv,
