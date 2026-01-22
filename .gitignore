@@ -7,11 +7,8 @@ mng.db
 Cargo.lock
 
 pdfs/*
-svgs/*
 
 **.syncthing**
-
-pdftosvg
 
 kdrive/
 
