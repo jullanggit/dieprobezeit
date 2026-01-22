@@ -24,14 +24,8 @@ pub async fn fetch_editions() -> Result<Vec<edition::Model>, ServerFnError> {
         .map_err(|err| ServerFnError::new(format!("{err}")))
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct ViewEdition {
-    pub edition: edition::Model,
-    pub num_pages: u8,
-}
-
 #[server]
-pub async fn view_edition(id: i32) -> Result<ViewEdition, ServerFnError> {
+pub async fn view_edition(id: i32) -> Result<edition::Model, ServerFnError> {
     let db = db();
 
     // increment view count
@@ -51,19 +45,5 @@ pub async fn view_edition(id: i32) -> Result<ViewEdition, ServerFnError> {
         .map_err(|err| ServerFnError::new(format!("{err}")))?
         .ok_or(ServerFnError::new(format!("Edition {id} not found")))?;
 
-    let mut read_dir = tokio::fs::read_dir(&format!("svgs/{}", edition.date))
-        .await
-        .map_err(|err| {
-            ServerFnError::new(format!(
-                "Failed to read directory for edition {}: {err}",
-                edition.date
-            ))
-        })?;
-
-    let mut num_pages = 0;
-    while let Ok(Some(_entry)) = read_dir.next_entry().await {
-        num_pages += 1;
-    }
-
-    Ok(ViewEdition { edition, num_pages })
+    Ok(edition)
 }

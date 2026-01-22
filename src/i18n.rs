@@ -137,6 +137,10 @@ Translation! {
         DE: "Fehler beim Laden der Ausgabe",
         CH: "Fehler bim Lade vo de Usgab",
         EN: "Error loading edition")
+    loading_pdf: (
+        DE: "PDF wird geladen...",
+        CH: "PDF isch am lade...",
+        EN: "Loading PDF...")
     no_edition_found: (
         DE: "Keine Ausgabe gefunden",
         CH: "Kei Usgab gfunde",

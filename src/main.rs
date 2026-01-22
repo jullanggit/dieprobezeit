@@ -46,6 +46,8 @@ enum Route {
 // The asset macro also minifies some assets like CSS and JS to make bundled smaller
 const MAIN_CSS: Asset = asset!("/assets/styling/main.css");
 const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
+const PDF_CSS: Asset = asset!("/assets/styling/pdf.css");
+const PDF_RENDERER_JS: Asset = asset!("/assets/scripts/pdf-renderer.js");
 
 fn main() {
     #[cfg(not(feature = "server"))]
@@ -62,7 +64,7 @@ fn main() {
             .expect("Failed to run migrations");
 
         let router = dioxus::server::router(App)
-            .nest_service("/svgs", tower_http::services::ServeDir::new("svgs"));
+            .nest_service("/pdfs", tower_http::services::ServeDir::new("pdfs"));
 
         // periodically sync feedback to kdrive
         tokio::spawn(async {
@@ -107,6 +109,17 @@ fn App() -> Element {
         // document::Link { rel: "icon", href: FAVICON }
         document::Link { rel: "stylesheet", href: MAIN_CSS }
         document::Link { rel: "stylesheet", href: TAILWIND_CSS }
+        document::Link { rel: "stylesheet", href: PDF_CSS }
+
+        script {
+            defer: true,
+            src: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/pdf.min.js", // attention: keep version in sync with pdf-render.js
+        }
+        script {
+            defer: true,
+            src: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/pdf_viewer.min.js", // attention: keep version in sync with pdf-render.js
+        }
+        script { defer: true, src: PDF_RENDERER_JS }
 
         // The router component renders the route enum we defined above. It will handle synchronization of the URL and render
         // the layouts and components for the active route.

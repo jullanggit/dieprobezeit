@@ -1,0 +1,32 @@
+.pdfjs-container {
+    width: 100%;
+}
+
+.pdf-page {
+    position: relative;
+    display: inline-block;
+    background-color: #ffffff;
+    margin: 12px auto;
+}
+
+.pdf-canvas {
+    display: block;
+}
+
+.annotationLayer {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.annotationLayer section,
+.annotationLayer a {
+    position: absolute;
+    pointer-events: auto;
+}
+
+.annotationLayer a {
+    text-decoration: none;
+    color: inherit;
+}
