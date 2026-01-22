@@ -4,9 +4,10 @@
 
 .pdf-page {
     position: relative;
-    display: inline-block;
+    display: block;
     background-color: #ffffff;
     margin: 12px auto;
+    overflow: hidden;
 }
 
 .pdf-canvas {
@@ -29,4 +30,5 @@
 .annotationLayer a {
     text-decoration: none;
     color: inherit;
+    cursor: pointer;
 }

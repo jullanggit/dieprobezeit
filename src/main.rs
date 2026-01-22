@@ -111,15 +111,16 @@ fn App() -> Element {
         document::Link { rel: "stylesheet", href: TAILWIND_CSS }
         document::Link { rel: "stylesheet", href: PDF_CSS }
 
-        script {
-            defer: true,
-            src: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.4.149/pdf.min.mjs", // attention: keep version in sync with pdf-render.js
+        // PDF rendering
+        document::Link {
+            rel: "stylesheet",
+            href: "https://unpkg.com/pdfjs-dist@latest/web/pdf_viewer.css",
         }
         script {
+            r#type: "module",
             defer: true,
-            src: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.4.149/pdf_viewer.min.css", // attention: keep version in sync with pdf-render.js
+            src: PDF_RENDERER_JS,
         }
-        script { defer: true, src: PDF_RENDERER_JS }
 
         // The router component renders the route enum we defined above. It will handle synchronization of the URL and render
         // the layouts and components for the active route.
