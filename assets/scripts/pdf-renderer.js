@@ -1,6 +1,6 @@
 (() => {
   const PDFJS_CDN_BASE =
-    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82";
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.4.149"; // keep in sync with versions in main.rs
   const CONTAINER_SELECTOR = ".pdfjs-container[data-pdf-src]";
   const renderState = new WeakMap();
 

@@ -113,11 +113,11 @@ fn App() -> Element {
 
         script {
             defer: true,
-            src: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/pdf.min.js", // attention: keep version in sync with pdf-render.js
+            src: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.4.149/pdf.min.mjs", // attention: keep version in sync with pdf-render.js
         }
         script {
             defer: true,
-            src: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/pdf_viewer.min.js", // attention: keep version in sync with pdf-render.js
+            src: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.4.149/pdf_viewer.min.css", // attention: keep version in sync with pdf-render.js
         }
         script { defer: true, src: PDF_RENDERER_JS }
 
