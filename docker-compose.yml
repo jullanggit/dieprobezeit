@@ -12,7 +12,7 @@ services:
       pingoo.port: "8080"
 
   pingoo:
-    image: pingooio/pingoo:latest
+    image: docker.io/pingooio/pingoo:latest
     restart: unless-stopped
     network_mode: "host"
     volumes:
