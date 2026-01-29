@@ -14,6 +14,13 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 
 function scheduleRender(container) {
   const state = renderState.get(container) || {};
+
+  if (container.dataset.pdfjsRendering === "true") {
+    state.pending = true;
+    renderState.set(container, state);
+    return;
+  }
+
   if (state.timer) clearTimeout(state.timer);
   state.timer = setTimeout(() => renderPdf(container), 60);
   renderState.set(container, state);
@@ -35,6 +42,21 @@ function setupResizeObserver(container) {
 
   observer.observe(container);
   container._pdfResizeObserver = observer;
+
+  if (!container._pdfDprListener) {
+      container._pdfDprListener = true;
+
+      const listenForDprChange = () => {
+        const query = matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
+
+        query.addEventListener('change', () => {
+          scheduleRender(container);
+          listenForDprChange();
+        }, { once: true });
+      };
+
+      listenForDprChange();
+    }
 }
 
 async function renderPdf(container) {
@@ -110,24 +132,24 @@ async function renderPdf(container) {
       const viewportH = window.visualViewport?.height ?? window.innerHeight;
       const scaleMinVertical = viewportH / (baseViewport.height * MIN_VISIBLE_PAGE_FRACTION);
 
-      const scale = Math.min(scaleToWidth, scaleMinVertical);
+      const visualScale = Math.min(scaleToWidth, scaleMinVertical);
 
-      const viewport = page.getViewport({ scale });
+      const viewport = page.getViewport({ scale: visualScale });
 
       const pageDiv = document.createElement("div");
       pageDiv.className = "pdf-page";
       pageDiv.dataset.pageNumber = String(pageNumber);
-      pageDiv.style.width = `${Math.ceil(viewport.width)}px`;
-      pageDiv.style.height = `${Math.ceil(viewport.height)}px`;
+      pageDiv.style.width = `${Math.round(viewport.width)}px`;
+      pageDiv.style.height = `${Math.round(viewport.height)}px`;
 
       const canvas = document.createElement("canvas");
       canvas.className = "pdf-canvas";
 
-      const outputScale = window.devicePixelRatio || 1;
-      canvas.width = Math.floor(viewport.width * outputScale);
-      canvas.height = Math.floor(viewport.height * outputScale);
-      canvas.style.width = `${Math.floor(viewport.width)}px`;
-      canvas.style.height = `${Math.floor(viewport.height)}px`;
+      const pixelRatio = window.devicePixelRatio || 1;
+      canvas.width = Math.round(viewport.width * pixelRatio);
+      canvas.height = Math.round(viewport.height * pixelRatio);
+      canvas.style.width = `${Math.round(viewport.width)}px`;
+      canvas.style.height = `${Math.round(viewport.height)}px`;
 
       pageDiv.appendChild(canvas);
 
@@ -142,9 +164,9 @@ async function renderPdf(container) {
       container.appendChild(pageDiv);
 
       await page.render({
-        canvas,
+        canvasContext: canvas.getContext('2d'),
         viewport,
-        transform: outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null,
+        transform: [pixelRatio, 0, 0, pixelRatio, 0, 0],
       }).promise;
 
       const annotations = await page.getAnnotations({ intent: "display" });
@@ -184,6 +206,11 @@ async function renderPdf(container) {
       });
       await textLayer.render(textContent);
 
+      console.log("DPR:", window.devicePixelRatio);
+      console.log("Base Viewport (scale=1):", page.getViewport({ scale: 1 }));
+      console.log("Calculated scale:", visualScale);
+      console.log("Final viewport dimensions:", viewport.width, viewport.height);
+
       pageViews.set(pageNumber, { div: pageDiv, viewport });
     }
 
@@ -194,6 +221,13 @@ async function renderPdf(container) {
     console.error("Failed to render PDF", error);
   } finally {
     container.dataset.pdfjsRendering = "false";
+
+    const state = renderState.get(container) || {};
+    if (state.pending) {
+      state.pending = false;
+      renderState.set(container, state);
+      scheduleRender(container);
+    }
   }
 }
 

@@ -31,6 +31,7 @@
 	    podman
 	    podman-compose
             vtsls
+            eslint
           ];
 
           # Apparently helps rust-analyzer find std sources reliably
