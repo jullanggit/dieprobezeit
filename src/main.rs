@@ -114,7 +114,7 @@ fn App() -> Element {
         // PDF rendering
         document::Link {
             rel: "stylesheet",
-            href: "https://unpkg.com/pdfjs-dist@latest/web/pdf_viewer.css",
+            href: "https://unpkg.com/pdfjs-dist@5.4.530/web/pdf_viewer.css", // keep in sync with PDF_RENDERER_JS
         }
         script {
             r#type: "module",

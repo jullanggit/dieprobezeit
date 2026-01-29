@@ -1,5 +1,6 @@
-import * as pdfjsLib from "https://unpkg.com/pdfjs-dist@latest/build/pdf.mjs";
-import * as pdfjsViewer from "https://unpkg.com/pdfjs-dist@latest/web/pdf_viewer.mjs";
+// keep versions in sync with main.rs
+import * as pdfjsLib from "https://unpkg.com/pdfjs-dist@5.4.530/build/pdf.mjs";
+import * as pdfjsViewer from "https://unpkg.com/pdfjs-dist@5.4.530/web/pdf_viewer.mjs";
 
 // how much of the page should be vertically visible, at a minimum
 const MIN_VISIBLE_PAGE_FRACTION = 0.7;
@@ -176,12 +177,10 @@ async function renderPdf(container) {
       });
 
       const textContent = await page.getTextContent();
-      const textLayer = new pdfjsViewer.TextLayer({
-        textLayerDiv: textLayerDiv,
-        eventBus,
-        pageIndex: pageNumber - 1,
-        viewport: viewport,
-        enhanceTextSelection: true,
+      const textLayer = new pdfjsLib.TextLayer({
+          textContentSource: textContent,
+          viewport: viewport,
+          container: textLayerDiv,
       });
       await textLayer.render(textContent);
 
