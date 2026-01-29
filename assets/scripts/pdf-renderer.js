@@ -59,6 +59,14 @@ function setupResizeObserver(container) {
     }
 }
 
+function getVisualViewport() {
+  return window.visualViewport ? window.visualViewport : {
+    width: window.innerWidth,
+    height: window.innerHeight,
+    scale: 1
+  };
+}
+
 async function renderPdf(container) {
   const pdfUrl = container.dataset.pdfSrc;
   if (!pdfUrl) return;
@@ -129,12 +137,13 @@ async function renderPdf(container) {
 
       const scaleToWidth = availableWidth / baseViewport.width;
 
-      const viewportH = window.visualViewport?.height ?? window.innerHeight;
-      const scaleMinVertical = viewportH / (baseViewport.height * MIN_VISIBLE_PAGE_FRACTION);
+      const visualViewport = getVisualViewport();
+      const scaleMinVertical = visualViewport.height / (baseViewport.height * MIN_VISIBLE_PAGE_FRACTION);
 
       const visualScale = Math.min(scaleToWidth, scaleMinVertical);
+      const finalScale =  visualViewport.scale > 1 ? visualScale * visualViewport.scale : visualScale;
 
-      const viewport = page.getViewport({ scale: visualScale });
+      const viewport = page.getViewport({ scale: finalScale });
 
       const pageDiv = document.createElement("div");
       pageDiv.className = "pdf-page";
@@ -145,7 +154,11 @@ async function renderPdf(container) {
       const canvas = document.createElement("canvas");
       canvas.className = "pdf-canvas";
 
-      const pixelRatio = window.devicePixelRatio || 1;
+      const context = canvas.getContext("2d");
+
+      const RESOLUTION_MULTIPLIER = 2;
+      const pixelRatio = RESOLUTION_MULTIPLIER * (window.devicePixelRatio || 1);
+
       canvas.width = Math.round(viewport.width * pixelRatio);
       canvas.height = Math.round(viewport.height * pixelRatio);
       canvas.style.width = `${Math.round(viewport.width)}px`;
@@ -164,7 +177,7 @@ async function renderPdf(container) {
       container.appendChild(pageDiv);
 
       await page.render({
-        canvasContext: canvas.getContext('2d'),
+        canvasContext: context,
         viewport,
         transform: [pixelRatio, 0, 0, pixelRatio, 0, 0],
       }).promise;
