@@ -206,11 +206,6 @@ async function renderPdf(container) {
       });
       await textLayer.render(textContent);
 
-      console.log("DPR:", window.devicePixelRatio);
-      console.log("Base Viewport (scale=1):", page.getViewport({ scale: 1 }));
-      console.log("Calculated scale:", visualScale);
-      console.log("Final viewport dimensions:", viewport.width, viewport.height);
-
       pageViews.set(pageNumber, { div: pageDiv, viewport });
     }
 
