@@ -30,6 +30,7 @@
             dioxus-cli
 	    podman
 	    podman-compose
+            vtsls
           ];
 
           # Apparently helps rust-analyzer find std sources reliably

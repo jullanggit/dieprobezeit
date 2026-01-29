@@ -134,6 +134,10 @@ async function renderPdf(container) {
       annotationLayerDiv.className = "annotationLayer";
       pageDiv.appendChild(annotationLayerDiv);
 
+      const textLayerDiv = document.createElement("div");
+      textLayerDiv.className = "textLayer";
+      pageDiv.appendChild(textLayerDiv);
+
       container.appendChild(pageDiv);
 
       await page.render({
@@ -170,6 +174,16 @@ async function renderPdf(container) {
         // Needed so link icons etc. resolve correctly when using the CDN. :contentReference[oaicite:7]{index=7}
         imageResourcesPath: `${PDFJS_CDN_BASE}/web/images/`,
       });
+
+      const textContent = await page.getTextContent();
+      const textLayer = new pdfjsViewer.TextLayer({
+        textLayerDiv: textLayerDiv,
+        eventBus,
+        pageIndex: pageNumber - 1,
+        viewport: viewport,
+        enhanceTextSelection: true,
+      });
+      await textLayer.render(textContent);
 
       pageViews.set(pageNumber, { div: pageDiv, viewport });
     }
