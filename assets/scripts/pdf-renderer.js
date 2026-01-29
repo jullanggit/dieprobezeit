@@ -1,11 +1,11 @@
 // keep versions in sync with main.rs
 import * as pdfjsLib from "https://unpkg.com/pdfjs-dist@5.4.530/build/pdf.mjs";
 import * as pdfjsViewer from "https://unpkg.com/pdfjs-dist@5.4.530/web/pdf_viewer.mjs";
+const PDFJS_CDN_BASE = "https://unpkg.com/pdfjs-dist@5.4.530";
 
 // how much of the page should be vertically visible, at a minimum
 const MIN_VISIBLE_PAGE_FRACTION = 0.7;
 
-const PDFJS_CDN_BASE = "https://unpkg.com/pdfjs-dist@latest";
 const CONTAINER_SELECTOR = ".pdfjs-container[data-pdf-src]";
 const renderState = new WeakMap();
 
