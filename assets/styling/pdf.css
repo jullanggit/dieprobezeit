@@ -13,6 +13,7 @@
 .pdf-canvas {
     display: block;
     image-rendering: -webkit-optimize-contrast;
+}
 
 .annotationLayer {
     position: absolute;
