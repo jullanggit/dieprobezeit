@@ -28,6 +28,20 @@
     pointer-events: auto;
 }
 
+.annotationLayer .linkAnnotation {
+    position: absolute;
+    pointer-events: auto;
+}
+
+.annotationLayer .linkAnnotation > a {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
 .annotationLayer a {
     text-decoration: none;
     color: inherit;
