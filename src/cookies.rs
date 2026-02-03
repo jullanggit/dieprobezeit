@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 
 #[cfg(feature = "web")]
-pub fn html_document() -> Option<web_sys::HtmlDocument> {
+fn html_document() -> Option<web_sys::HtmlDocument> {
     use web_sys::wasm_bindgen::JsCast;
 
     web_sys::window()?
@@ -50,7 +50,7 @@ pub fn get_or_insert_cookie<T>(key: &str, default: &str, parse: impl Fn(&str) ->
 
         FullstackContext::current()
             .and_then(|context| context.parts_mut().headers.typed_get::<Cookie>())
-            .and_then(|cookie| cookie.get(key).and_then(parse))
+            .and_then(|cookie| cookie.get(key).and_then(&parse))
             .unwrap_or(parse(default).expect("default should be parseable"))
     }
 }

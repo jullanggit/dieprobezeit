@@ -1,4 +1,4 @@
-use crate::cookies::{get_or_insert_cookie, html_document, set_cookie};
+use crate::cookies::{get_or_insert_cookie, set_cookie};
 use dioxus::prelude::*;
 
 const STORAGE_KEY: &str = "lang";
