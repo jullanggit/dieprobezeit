@@ -9,6 +9,7 @@ use views::*;
 mod components;
 mod views;
 
+mod cookies;
 mod db;
 #[cfg(feature = "server")]
 mod feed;

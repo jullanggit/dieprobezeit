@@ -1,61 +1,19 @@
+use crate::cookies::{get_or_insert_cookie, html_document, set_cookie};
 use dioxus::prelude::*;
 
 const STORAGE_KEY: &str = "lang";
 pub const DEFAULT_LANG: Language = Language::DE;
 
-#[cfg(feature = "web")]
-fn html_document() -> Option<web_sys::HtmlDocument> {
-    use web_sys::wasm_bindgen::JsCast;
-
-    web_sys::window()?
-        .document()?
-        .dyn_into::<web_sys::HtmlDocument>()
-        .ok()
-}
-
 /// Store language to cookies. No-op on non-web builds
 #[allow(unused_variables)]
 pub fn set_lang(language: Language) {
-    #[cfg(feature = "web")]
-    {
-        if let Some(document) = html_document() {
-            let _ = document.set_cookie(&format!(
-                "{STORAGE_KEY}={}; Path=/; Max-Age=3153600; SameSite=Lax",
-                language.to_str()
-            ));
-        }
-    }
+    set_cookie(STORAGE_KEY, language.to_str());
 }
 
 /// Get language setting from cookies. Returns DEFAULT_LANG on failure.
 /// Also sets 'lang' to DEFAULT lang on failure on web builds.
 pub fn get_lang() -> Language {
-    #[cfg(feature = "web")]
-    {
-        html_document()
-            .and_then(|html_document| html_document.cookie().ok())
-            .and_then(|string| {
-                string.split(';').find_map(|kv| {
-                    let (key, value) = kv.trim().split_once('=')?;
-                    key.eq(STORAGE_KEY)
-                        .then(|| Language::from_str(value))
-                        .flatten()
-                })
-            })
-            .unwrap_or_else(|| {
-                set_lang(DEFAULT_LANG);
-                DEFAULT_LANG
-            })
-    }
-    #[cfg(feature = "server")]
-    {
-        use dioxus::fullstack::{headers::HeaderMapExt, Cookie, FullstackContext};
-
-        FullstackContext::current()
-            .and_then(|context| context.parts_mut().headers.typed_get::<Cookie>())
-            .and_then(|cookie| cookie.get(STORAGE_KEY).and_then(Language::from_str))
-            .unwrap_or(DEFAULT_LANG)
-    }
+    get_or_insert_cookie(STORAGE_KEY, DEFAULT_LANG.to_str(), Language::from_str)
 }
 
 pub fn use_lang() -> Signal<Language> {
