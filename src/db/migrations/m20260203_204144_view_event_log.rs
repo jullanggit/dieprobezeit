@@ -39,8 +39,11 @@ impl MigrationTrait for Migration {
                     .expr(Expr::cust("null")) // no client ID for historical data
                     .column(Edition::Id)
                     .expr(Expr::column(Edition::Views).cast_as("float"))
-                    .and_where(Edition::Views.into_column_ref().gt(0)),
-            );
+                    .and_where(Edition::Views.into_column_ref().gt(0))
+                    .to_owned(),
+            )
+            .map_err(|error| DbErr::Migration(error.to_string()))?
+            .to_owned();
         manager.exec_stmt(insert).await?;
 
         // drop old data
@@ -89,7 +92,7 @@ impl MigrationTrait for Migration {
         let aggregate_views = Query::select()
             .from(Views::Table)
             .column(Views::EditionId)
-            .expr(Func::sum(Views::ProgressIncrease).cast_as("integer"))
+            .expr(Func::sum(Views::ProgressIncrease.into_column_ref()).cast_as("integer"))
             .and_where(Views::EditionId.into_column_ref().equals(Edition::Id))
             .to_owned();
         let aggregate_subquery =
