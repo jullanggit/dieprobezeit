@@ -44,6 +44,7 @@
             podman-compose
             vtsls
             eslint
+            sqlite
           ];
         };
       }
