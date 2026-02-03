@@ -45,6 +45,7 @@
             vtsls
             eslint
             sqlite
+            sea-orm-cli
           ];
         };
       }
