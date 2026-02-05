@@ -5,7 +5,6 @@ const STORAGE_KEY: &str = "lang";
 pub const DEFAULT_LANG: Language = Language::DE;
 
 /// Store language to cookies. No-op on non-web builds
-#[allow(unused_variables)]
 pub fn set_lang(language: Language) {
     set_cookie(STORAGE_KEY, language.to_str());
 }
