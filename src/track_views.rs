@@ -1,13 +1,15 @@
+use uuid::Uuid;
+
 use crate::components::EditionId;
 use std::collections::HashMap;
 
 /// A Client UUID used for view deduplication
-pub struct ClientId(pub String);
+pub struct ClientId(pub Uuid);
 impl ClientId {
     /// Creates a new random Client ID. May fail if window or crypto couldn't be accessed.
     #[cfg(feature = "web")]
-    pub fn new() -> Option<Self> {
-        Some(Self(web_sys::window()?.crypto().ok()?.random_uuid()))
+    pub fn new() -> Self {
+        Self(Uuid::new_v4())
     }
 }
 
