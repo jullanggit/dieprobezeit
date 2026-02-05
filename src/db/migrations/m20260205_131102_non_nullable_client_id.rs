@@ -67,11 +67,11 @@ async fn helper<'c>(
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        helper(manager, uuid_null).await
+        helper(manager, uuid).await
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        helper(manager, uuid).await
+        helper(manager, uuid_null).await
     }
 }
 
