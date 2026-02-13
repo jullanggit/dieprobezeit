@@ -239,8 +239,8 @@ async function renderPdf(container) {
     }
 
     if (readTimesSetup === false) {
-      setupReadTimes();
       readTimesSetup = true;
+      setupReadTimes();
     }
 
     container.dataset.pdfjsWidth = String(
@@ -294,18 +294,23 @@ function setupReadTimes() {
   let lastUpdate = Date.now();
   let lastSend = Date.now();
 
-  setInterval(() => {
+  function tick() {
     const now = Date.now();
     const updateElapsed = now - lastUpdate;
+    const sendElapsed = now - lastSend;
+    console.log(now, updateElapsed, sendElapsed);
     updateReadTimes(updateElapsed);
     lastUpdate = now;
 
-    const sendElapsed = now - lastSend;
     if (sendElapsed > 5000) {
       sendReadTimes();
       lastSend = now;
     }
-  }, 100);
+
+    setTimeout(tick, 100);
+  }
+
+  tick();
 }
 
 function updateReadTimes(elapsed) {
@@ -337,7 +342,6 @@ function setupVisibility() {
 function setup() {
   scanAndRender();
   observeDom();
-  setupReadTimes();
 }
 
 if (document.readyState === "loading") {
