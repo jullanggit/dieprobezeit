@@ -25,10 +25,7 @@ pub fn set_cookie(key: &str, value: &str) {
         }
     }
 }
-
-/// Get value from cookies. Returns default on failure.
-/// Also sets 'key' to default on failure on web builds.
-pub fn get_or_insert_cookie<T>(key: &str, default: &str, parse: impl Fn(&str) -> Option<T>) -> T {
+pub fn get_cookie<T>(key: &str, parse: impl Fn(&str) -> Option<T>) -> Option<T> {
     #[cfg(feature = "web")]
     {
         html_document()
@@ -39,10 +36,6 @@ pub fn get_or_insert_cookie<T>(key: &str, default: &str, parse: impl Fn(&str) ->
                     cookie_key.eq(key).then(|| parse(value)).flatten()
                 })
             })
-            .unwrap_or_else(|| {
-                set_cookie(key, default);
-                parse(default).expect("default should be parseable")
-            })
     }
     #[cfg(feature = "server")]
     {
@@ -51,6 +44,21 @@ pub fn get_or_insert_cookie<T>(key: &str, default: &str, parse: impl Fn(&str) ->
         FullstackContext::current()
             .and_then(|context| context.parts_mut().headers.typed_get::<Cookie>())
             .and_then(|cookie| cookie.get(key).and_then(&parse))
-            .unwrap_or(parse(default).expect("default should be parseable"))
+    }
+}
+
+/// Get value from cookies. Returns default on failure.
+/// Also sets 'key' to default on failure on web builds.
+pub fn get_or_insert_cookie<T>(key: &str, default: &str, parse: impl Fn(&str) -> Option<T>) -> T {
+    #[cfg(feature = "web")]
+    {
+        get_cookie(key, &parse).unwrap_or_else(|| {
+            set_cookie(key, default);
+            parse(default).expect("default should be parseable")
+        })
+    }
+    #[cfg(feature = "server")]
+    {
+        get_cookie(key, &parse).unwrap_or(parse(default).expect("default should be parseable"))
     }
 }

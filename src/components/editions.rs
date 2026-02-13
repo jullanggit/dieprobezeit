@@ -42,7 +42,7 @@ pub async fn view_edition(id: i32) -> Result<edition::Model, ServerFnError> {
     let edition = edition::Entity::find_by_id(id)
         .one(db)
         .await
-        .map_err(|err| ServerFnError::new(format!("{err}")))?
+        .map_err(|err| ServerFnError::new(err.to_string()))?
         .ok_or(ServerFnError::new(format!("Edition {id} not found")))?;
 
     Ok(edition)

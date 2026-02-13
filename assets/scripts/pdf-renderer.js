@@ -82,6 +82,7 @@ async function renderPdf(container) {
 
   container.dataset.pdfjsRendering = "true";
   container.innerHTML = "Loading PDF...";
+  currentContainer = container;
 
   const loadingTask = pdfjsLib.getDocument({ url: pdfUrl });
 
@@ -238,7 +239,7 @@ async function renderPdf(container) {
       pageViews.set(pageNumber, { div: pageDiv, viewport });
     }
 
-    if (readTimesSetup === false) {
+    if (!readTimesSetup) {
       readTimesSetup = true;
       setupReadTimes();
     }
@@ -293,8 +294,9 @@ function setupReadTimes() {
 
   let lastUpdate = Date.now();
   let lastSend = Date.now();
+  let isSending = false;
 
-  function tick() {
+  async function tick() {
     const now = Date.now();
     const updateElapsed = now - lastUpdate;
     const sendElapsed = now - lastSend;
@@ -302,9 +304,18 @@ function setupReadTimes() {
     updateReadTimes(updateElapsed);
     lastUpdate = now;
 
-    if (sendElapsed > 5000) {
-      sendReadTimes();
-      lastSend = now;
+    if (sendElapsed > 5000 && !isSending) {
+      isSending = true;
+
+      try {
+        await sendReadTimes();
+        lastSend = now;
+        clearReadTimes();
+      } catch (error) {
+        console.error("Failed to send read times:", error);
+      } finally {
+        isSending = false;
+      }
     }
 
     setTimeout(tick, 100);
@@ -320,8 +331,23 @@ function updateReadTimes(elapsed) {
   });
 }
 
-function sendReadTimes() {
-  clearReadTimes();
+async function sendReadTimes() {
+  const editionId = currentContainer.dataset.editionId;
+
+  const response = await fetch("/api/record-read-times", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      edition_id: editionId,
+      page_times: pages.map((page) => page.dataset.time),
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `HTTP error: status: ${response.status}, body: ${response.body}`,
+    );
+  }
 }
 
 function clearReadTimes() {
@@ -332,6 +358,7 @@ function setupVisibility() {
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
+        console.log(entry.intersectionRatio);
         entry.target.dataset.visibility = entry.intersectionRatio;
       });
     },
