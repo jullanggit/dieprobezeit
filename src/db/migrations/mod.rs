@@ -6,8 +6,7 @@ mod m20251105_094423_add_title_to_edition;
 mod m20251105_122406_add_feedback;
 mod m20251105_125132_make_feedback_email_optional;
 mod m20251210_110103_add_hidden_flag_to_edition;
-mod m20260203_204144_view_event_log;
-mod m20260205_131102_non_nullable_client_id;
+mod m20260203_204144_read_event_log;
 
 pub struct Migrator;
 
@@ -20,8 +19,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20251105_122406_add_feedback::Migration),
             Box::new(m20251105_125132_make_feedback_email_optional::Migration),
             Box::new(m20251210_110103_add_hidden_flag_to_edition::Migration),
-            Box::new(m20260203_204144_view_event_log::Migration),
-            Box::new(m20260205_131102_non_nullable_client_id::Migration),
+            Box::new(m20260203_204144_read_event_log::Migration),
         ]
     }
 }
