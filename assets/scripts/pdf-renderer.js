@@ -9,8 +9,7 @@ const MIN_VISIBLE_PAGE_FRACTION = 0.7;
 const CONTAINER_SELECTOR = ".pdfjs-container[data-pdf-src]";
 const renderState = new WeakMap();
 
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  `${PDFJS_CDN_BASE}/build/pdf.worker.min.mjs`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = `${PDFJS_CDN_BASE}/build/pdf.worker.min.mjs`;
 
 function scheduleRender(container) {
   const state = renderState.get(container) || {};
@@ -44,28 +43,37 @@ function setupResizeObserver(container) {
   container._pdfResizeObserver = observer;
 
   if (!container._pdfDprListener) {
-      container._pdfDprListener = true;
+    container._pdfDprListener = true;
 
-      const listenForDprChange = () => {
-        const query = matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
+    const listenForDprChange = () => {
+      const query = matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
 
-        query.addEventListener('change', () => {
+      query.addEventListener(
+        "change",
+        () => {
           scheduleRender(container);
           listenForDprChange();
-        }, { once: true });
-      };
+        },
+        { once: true },
+      );
+    };
 
-      listenForDprChange();
-    }
+    listenForDprChange();
+  }
 }
 
 function getVisualViewport() {
-  return window.visualViewport ? window.visualViewport : {
-    width: window.innerWidth,
-    height: window.innerHeight,
-    scale: 1
-  };
+  return window.visualViewport
+    ? window.visualViewport
+    : {
+        width: window.innerWidth,
+        height: window.innerHeight,
+        scale: 1,
+      };
 }
+
+let pages = [];
+let readTimesSetup = false;
 
 async function renderPdf(container) {
   const pdfUrl = container.dataset.pdfSrc;
@@ -112,7 +120,8 @@ async function renderPdf(container) {
         let top = null;
 
         if (destName === "XYZ") top = destArray[3];
-        else if (destName === "FitH" || destName === "FitBH") top = destArray[2];
+        else if (destName === "FitH" || destName === "FitBH")
+          top = destArray[2];
 
         let yOffset = 0;
         if (top !== null && top !== undefined) {
@@ -120,7 +129,8 @@ async function renderPdf(container) {
           yOffset = y;
         }
 
-        const pageTop = pageView.div.getBoundingClientRect().top + window.scrollY;
+        const pageTop =
+          pageView.div.getBoundingClientRect().top + window.scrollY;
         window.scrollTo({ top: pageTop + yOffset, behavior: "smooth" });
       },
     };
@@ -138,14 +148,20 @@ async function renderPdf(container) {
       const scaleToWidth = availableWidth / baseViewport.width;
 
       const visualViewport = getVisualViewport();
-      const scaleMinVertical = visualViewport.height / (baseViewport.height * MIN_VISIBLE_PAGE_FRACTION);
+      const scaleMinVertical =
+        visualViewport.height /
+        (baseViewport.height * MIN_VISIBLE_PAGE_FRACTION);
 
       const visualScale = Math.min(scaleToWidth, scaleMinVertical);
-      const finalScale =  visualViewport.scale > 1 ? visualScale * visualViewport.scale : visualScale;
+      const finalScale =
+        visualViewport.scale > 1
+          ? visualScale * visualViewport.scale
+          : visualScale;
 
       const viewport = page.getViewport({ scale: finalScale });
 
-      const pageDiv = document.createElement("div");
+      const pageDiv = (pages[pageNumber] ??= document.createElement("div"));
+
       pageDiv.className = "pdf-page";
       pageDiv.dataset.pageNumber = String(pageNumber);
       pageDiv.style.width = `${Math.round(viewport.width)}px`;
@@ -213,16 +229,23 @@ async function renderPdf(container) {
 
       const textContent = await page.getTextContent();
       const textLayer = new pdfjsLib.TextLayer({
-          textContentSource: textContent,
-          viewport: viewport,
-          container: textLayerDiv,
+        textContentSource: textContent,
+        viewport: viewport,
+        container: textLayerDiv,
       });
       await textLayer.render(textContent);
 
       pageViews.set(pageNumber, { div: pageDiv, viewport });
     }
 
-    container.dataset.pdfjsWidth = String(Math.round(container.clientWidth || 0));
+    if (readTimesSetup === false) {
+      setupReadTimes();
+      readTimesSetup = true;
+    }
+
+    container.dataset.pdfjsWidth = String(
+      Math.round(container.clientWidth || 0),
+    );
     setupResizeObserver(container);
   } catch (error) {
     container.innerHTML = "Failed to load PDF.";
@@ -240,7 +263,9 @@ async function renderPdf(container) {
 }
 
 function scanAndRender() {
-  document.querySelectorAll(CONTAINER_SELECTOR).forEach((c) => scheduleRender(c));
+  document
+    .querySelectorAll(CONTAINER_SELECTOR)
+    .forEach((c) => scheduleRender(c));
 }
 
 function observeDom() {
@@ -252,7 +277,9 @@ function observeDom() {
         if (node.matches?.(CONTAINER_SELECTOR)) {
           scheduleRender(node);
         } else {
-          node.querySelectorAll?.(CONTAINER_SELECTOR).forEach((c) => scheduleRender(c));
+          node
+            .querySelectorAll?.(CONTAINER_SELECTOR)
+            .forEach((c) => scheduleRender(c));
         }
       }
     }
@@ -261,12 +288,60 @@ function observeDom() {
   observer.observe(document.body, { childList: true, subtree: true });
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", () => {
-    scanAndRender();
-    observeDom();
-  });
-} else {
+function setupReadTimes() {
+  setupVisibility();
+
+  let lastUpdate = Date.now();
+  let lastSend = Date.now();
+
+  setInterval(() => {
+    const now = Date.now();
+    const updateElapsed = now - lastUpdate;
+    updateReadTimes(updateElapsed);
+
+    const sendElapsed = now - lastSend;
+    if (sendElapsed > 5000) {
+      sendReadTimes();
+    }
+  }, 100);
+}
+
+function updateReadTimes(elapsed) {
+  pages.forEach(
+    (page) => (page.dataset.time += elapsed * page.dataset.visibility),
+  );
+}
+
+function sendReadTimes() {
+  clearReadTimes();
+}
+
+function clearReadTimes() {}
+
+function setupVisibility() {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        entry.target.dataset.visibility = entry.visibility;
+      });
+    },
+    {
+      threshold: Array.from({ length: 101 }, (_, i) => i / 100),
+    },
+  );
+  pages.forEach((page) => observer.observe(page));
+}
+
+function setup() {
   scanAndRender();
   observeDom();
+  setupReadTimes();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
+    setup();
+  });
+} else {
+  setup();
 }
