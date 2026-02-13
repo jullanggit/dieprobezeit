@@ -9,6 +9,7 @@ pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
     pub date: TimeDate,
+    pub views: i32,
     pub title: Option<String>,
     pub hidden: bool,
 }
@@ -17,8 +18,8 @@ pub struct Model {
 pub enum Relation {
     #[sea_orm(has_many = "super::feedback::Entity")]
     Feedback,
-    #[sea_orm(has_many = "super::views::Entity")]
-    Views,
+    #[sea_orm(has_many = "super::reads::Entity")]
+    Reads,
 }
 
 impl Related<super::feedback::Entity> for Entity {
@@ -27,9 +28,9 @@ impl Related<super::feedback::Entity> for Entity {
     }
 }
 
-impl Related<super::views::Entity> for Entity {
+impl Related<super::reads::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Views.def()
+        Relation::Reads.def()
     }
 }
 

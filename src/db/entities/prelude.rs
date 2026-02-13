@@ -2,4 +2,4 @@
 
 pub use super::edition::Entity as Edition;
 pub use super::feedback::Entity as Feedback;
-pub use super::views::Entity as Views;
+pub use super::reads::Entity as Reads;

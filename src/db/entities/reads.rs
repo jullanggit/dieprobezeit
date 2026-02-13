@@ -4,14 +4,15 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
-#[sea_orm(table_name = "views")]
+#[sea_orm(table_name = "reads")]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
     pub client_id: Uuid,
-    #[sea_orm(column_type = "Float")]
-    pub progress_increase: f32,
     pub edition_id: i32,
+    pub page_number: i32,
+    #[sea_orm(column_type = "Float")]
+    pub read_time: f32,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
