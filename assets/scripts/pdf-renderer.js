@@ -298,10 +298,12 @@ function setupReadTimes() {
     const now = Date.now();
     const updateElapsed = now - lastUpdate;
     updateReadTimes(updateElapsed);
+    lastUpdate = now;
 
     const sendElapsed = now - lastSend;
     if (sendElapsed > 5000) {
       sendReadTimes();
+      lastSend = now;
     }
   }, 100);
 }
