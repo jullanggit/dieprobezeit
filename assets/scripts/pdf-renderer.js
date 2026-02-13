@@ -82,7 +82,6 @@ async function renderPdf(container) {
 
   container.dataset.pdfjsRendering = "true";
   container.innerHTML = "Loading PDF...";
-  currentContainer = container;
 
   const loadingTask = pdfjsLib.getDocument({ url: pdfUrl });
 
@@ -161,7 +160,7 @@ async function renderPdf(container) {
 
       const viewport = page.getViewport({ scale: finalScale });
 
-      const pageDiv = (pages[pageNumber] ??= document.createElement("div"));
+      const pageDiv = (pages[pageNumber - 1] ??= document.createElement("div"));
 
       pageDiv.className = "pdf-page";
       pageDiv.dataset.pageNumber = String(pageNumber);
@@ -241,7 +240,7 @@ async function renderPdf(container) {
 
     if (!readTimesSetup) {
       readTimesSetup = true;
-      setupReadTimes();
+      setupReadTimes(container);
     }
 
     container.dataset.pdfjsWidth = String(
@@ -289,8 +288,10 @@ function observeDom() {
   observer.observe(document.body, { childList: true, subtree: true });
 }
 
-function setupReadTimes() {
+function setupReadTimes(container) {
   setupVisibility();
+
+  const editionId = Number(container.dataset.editionId);
 
   let lastUpdate = Date.now();
   let lastSend = Date.now();
@@ -300,7 +301,6 @@ function setupReadTimes() {
     const now = Date.now();
     const updateElapsed = now - lastUpdate;
     const sendElapsed = now - lastSend;
-    console.log(now, updateElapsed, sendElapsed);
     updateReadTimes(updateElapsed);
     lastUpdate = now;
 
@@ -308,7 +308,7 @@ function setupReadTimes() {
       isSending = true;
 
       try {
-        await sendReadTimes();
+        await sendReadTimes(editionId);
         lastSend = now;
         clearReadTimes();
       } catch (error) {
@@ -331,22 +331,19 @@ function updateReadTimes(elapsed) {
   });
 }
 
-async function sendReadTimes() {
-  const editionId = currentContainer.dataset.editionId;
-
+async function sendReadTimes(editionId) {
   const response = await fetch("/api/record-read-times", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       edition_id: editionId,
-      page_times: pages.map((page) => page.dataset.time),
+      page_times: pages.map((page) => Number(page.dataset.time)),
     }),
   });
 
   if (!response.ok) {
-    throw new Error(
-      `HTTP error: status: ${response.status}, body: ${response.body}`,
-    );
+    const text = await response.text();
+    throw new Error(`HTTP error: status: ${response.status}, body: ${text}`);
   }
 }
 
@@ -358,7 +355,6 @@ function setupVisibility() {
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
-        console.log(entry.intersectionRatio);
         entry.target.dataset.visibility = entry.intersectionRatio;
       });
     },

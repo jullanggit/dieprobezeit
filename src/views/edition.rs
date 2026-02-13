@@ -55,7 +55,7 @@ pub fn Edition(id: EditionId) -> Element {
                     div {
                         class: "pdfjs-container",
                         "data-pdf-src": "/pdfs/{data.date}.pdf",
-                        "edition-id": "{id}",
+                        "data-edition-id": "{id}",
                         "{lang.read().loading_pdf()}"
                     }
                 },
