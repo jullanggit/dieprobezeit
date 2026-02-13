@@ -314,29 +314,35 @@ function setupReadTimes() {
 }
 
 function updateReadTimes(elapsed) {
-  pages.forEach(
-    (page) => (page.dataset.time += elapsed * page.dataset.visibility),
-  );
+  pages.forEach((page) => {
+    const current = Number(page.dataset.time) || 0;
+    page.dataset.time = current + elapsed * page.dataset.visibility;
+  });
 }
 
 function sendReadTimes() {
   clearReadTimes();
 }
 
-function clearReadTimes() {}
+function clearReadTimes() {
+  pages.forEach((page) => (page.dataset.time = 0));
+}
 
 function setupVisibility() {
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
-        entry.target.dataset.visibility = entry.visibility;
+        entry.target.dataset.visibility = entry.intersectionRatio;
       });
     },
     {
       threshold: Array.from({ length: 101 }, (_, i) => i / 100),
     },
   );
-  pages.forEach((page) => observer.observe(page));
+  pages.forEach((page) => {
+    page.dataset.visibility = 0;
+    observer.observe(page);
+  });
 }
 
 function setup() {
