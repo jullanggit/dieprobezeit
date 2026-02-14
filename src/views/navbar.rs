@@ -1,4 +1,4 @@
-use crate::{i18n, Route};
+use crate::{Route, i18n};
 use dioxus::prelude::*;
 
 const NAVBAR_CSS: Asset = asset!("/assets/styling/navbar.css");

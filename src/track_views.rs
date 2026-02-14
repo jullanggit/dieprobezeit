@@ -4,8 +4,8 @@ use crate::{
 };
 use dioxus::prelude::*;
 use sea_orm::{
-    prelude::Expr, ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder,
-    QuerySelect, Set,
+    ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder, QuerySelect, Set,
+    prelude::Expr,
 };
 use std::str::FromStr;
 use time::{Duration, PrimitiveDateTime, UtcDateTime};

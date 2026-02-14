@@ -1,4 +1,4 @@
-use crate::{components::fetch_editions, i18n, Route};
+use crate::{Route, components::fetch_editions, i18n};
 use dioxus::prelude::*;
 
 const ARCHIV_CSS: Asset = asset!("/assets/styling/archiv.css");

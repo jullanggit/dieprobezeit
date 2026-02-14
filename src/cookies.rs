@@ -27,8 +27,8 @@ pub fn set_cookie(key: &str, value: &str) {
         use std::str::FromStr;
 
         use dioxus::fullstack::{
-            headers::{HeaderName, HeaderValue},
             FullstackContext,
+            headers::{HeaderName, HeaderValue},
         };
         if let (Some(context), Ok(header_name), Ok(header_value)) = (
             FullstackContext::current(),
@@ -53,7 +53,7 @@ pub fn get_cookie<T>(key: &str, parse: impl Fn(&str) -> Option<T>) -> Option<T> 
     }
     #[cfg(feature = "server")]
     {
-        use dioxus::fullstack::{headers::HeaderMapExt, Cookie, FullstackContext};
+        use dioxus::fullstack::{Cookie, FullstackContext, headers::HeaderMapExt};
 
         FullstackContext::current()
             .and_then(|context| context.parts_mut().headers.typed_get::<Cookie>())

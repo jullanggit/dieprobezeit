@@ -1,4 +1,4 @@
-use crate::{i18n, EditionId};
+use crate::{EditionId, i18n};
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 

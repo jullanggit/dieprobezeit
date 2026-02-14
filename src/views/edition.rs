@@ -1,5 +1,5 @@
 use crate::{
-    components::{view_edition, EditionId},
+    components::{EditionId, view_edition},
     i18n,
     track_views::ensure_client_id_set,
     views::Feedback,

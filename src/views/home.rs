@@ -1,4 +1,4 @@
-use crate::{components::fetch_editions, i18n, Edition};
+use crate::{Edition, components::fetch_editions, i18n};
 use dioxus::prelude::*;
 
 /// The Home page component that will be rendered when the current route is `[Route::Home]`

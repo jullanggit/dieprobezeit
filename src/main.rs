@@ -56,7 +56,7 @@ fn main() {
 
     #[cfg(feature = "server")]
     dioxus::serve(|| async move {
-        use crate::db::{db, init_db, Migrator};
+        use crate::db::{Migrator, db, init_db};
         use sea_orm_migration::MigratorTrait;
         use std::time::Duration;
 
