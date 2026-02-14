@@ -300,21 +300,25 @@ function setupReadTimes(container) {
   async function tick() {
     const now = Date.now();
     const updateElapsed = now - lastUpdate;
-    const sendElapsed = now - lastSend;
-    updateReadTimes(updateElapsed);
-    lastUpdate = now;
+    lastUpdate = now; // update outside of focused-detection to skip any unfocused time
 
-    if (sendElapsed > 5000 && !isSending) {
-      isSending = true;
+    // only actually increment/send read times if the tab is focused
+    if (!document.hidden) {
+      updateReadTimes(updateElapsed);
 
-      try {
-        await sendReadTimes(editionId);
-        lastSend = now;
-        clearReadTimes();
-      } catch (error) {
-        console.error("Failed to send read times:", error);
-      } finally {
-        isSending = false;
+      const sendElapsed = now - lastSend;
+      if (sendElapsed > 5000 && !isSending) {
+        isSending = true;
+
+        try {
+          await sendReadTimes(editionId);
+          lastSend = now;
+          clearReadTimes();
+        } catch (error) {
+          console.error("Failed to send read times:", error);
+        } finally {
+          isSending = false;
+        }
       }
     }
 
