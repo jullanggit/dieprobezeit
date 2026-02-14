@@ -303,7 +303,7 @@ function setupReadTimes(container) {
     lastUpdate = now; // update outside of focused-detection to skip any unfocused time
 
     // only actually increment/send read times if the tab is focused
-    if (!document.hidden) {
+    if (!document.hidden && document.hasFocus()) {
       updateReadTimes(updateElapsed);
 
       const sendElapsed = now - lastSend;
