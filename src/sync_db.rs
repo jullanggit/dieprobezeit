@@ -52,19 +52,19 @@ pub async fn sync_reads_to_kdrive() -> Result<()> {
         })?;
 
     let csv =
-        iter::once("Total Unique Readers,Edition ID,Total Read Time,Unique Readers\n".to_string())
+        iter::once("Total Unique Readers,Edition ID,Total Read Time,,Unique Readers\n".to_string())
             .chain(per_edition.iter().enumerate().map(
                 |(i, (edition_id, total_read_time, unique_readers))| {
                     format!(
-                        "{},{},{},{}\n",
+                        "{},{},{},,{}\n",
+                        edition_id,
+                        Duration::milliseconds(*total_read_time as i64),
+                        unique_readers,
                         if i == 0 {
                             total_unique_readers.unwrap_or_default().to_string()
                         } else {
                             String::new()
                         },
-                        edition_id,
-                        Duration::milliseconds(*total_read_time as i64),
-                        unique_readers,
                     )
                 },
             ))
