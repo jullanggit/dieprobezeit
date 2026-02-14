@@ -8,6 +8,7 @@ mod m20251105_125132_make_feedback_email_optional;
 mod m20251210_110103_add_hidden_flag_to_edition;
 mod m20260203_204144_read_event_log;
 mod m20260214_134252_mark_old_views;
+mod m20260214_141218_add_read_timestamp;
 
 pub struct Migrator;
 
@@ -22,6 +23,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20251210_110103_add_hidden_flag_to_edition::Migration),
             Box::new(m20260203_204144_read_event_log::Migration),
             Box::new(m20260214_134252_mark_old_views::Migration),
+            Box::new(m20260214_141218_add_read_timestamp::Migration),
         ]
     }
 }
