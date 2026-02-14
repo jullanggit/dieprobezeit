@@ -33,12 +33,13 @@ pub async fn sync_feedback_to_kdrive() -> Result<()> {
 }
 
 pub async fn sync_editions_to_kdrive() -> Result<()> {
-    kdrive_sync_inner::<edition::Entity>("edition", "Date,Title,Views,Hidden", |edition| {
+    kdrive_sync_inner::<edition::Entity>("edition", "Date,Title,Views,OldViews,Hidden", |edition| {
         format!(
-            "{},{},{},{}\n",
+            "{},{},{},{},{}\n",
             edition.date,
             csv_str(edition.title.unwrap_or_default()),
             edition.views,
+            edition.old_views,
             edition.hidden,
         )
     })
