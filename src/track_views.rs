@@ -76,10 +76,11 @@ pub async fn record_read_times(
             )
             .select_only()
             .expr(reads::Column::ReadTime.sum())
-            .into_tuple()
+            .into_tuple::<Option<f32>>()
             .one(db)
             .await
             .map_err(|err| ServerFnError::new(err.to_string()))?
+            .flatten()
             .unwrap_or(0.0);
 
         let three_minutes_ms = 3. * 60. * 1000.;
