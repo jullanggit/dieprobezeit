@@ -46,6 +46,7 @@
             eslint
             sqlite
             sea-orm-cli
+            swc
           ];
         };
       }
