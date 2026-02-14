@@ -13,6 +13,7 @@ pub struct Model {
     pub page_number: i32,
     #[sea_orm(column_type = "Float")]
     pub read_time: f32,
+    pub timestamp: TimeDateTime,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
