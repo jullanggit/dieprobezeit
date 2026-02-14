@@ -11,6 +11,7 @@ impl MigrationTrait for Migration {
         manager
             .alter_table(
                 Table::alter()
+                    .table(Edition::Table)
                     .rename_column(Edition::Views, Edition::OldViews)
                     .to_owned(),
             )
@@ -19,6 +20,7 @@ impl MigrationTrait for Migration {
         manager
             .alter_table(
                 Table::alter()
+                    .table(Edition::Table)
                     .add_column(integer(Edition::Views).default(0))
                     .to_owned(),
             )
