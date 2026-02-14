@@ -2,7 +2,6 @@
 // need dioxus
 use crate::components::EditionId;
 use dioxus::prelude::*;
-use std::time::Duration;
 use views::*;
 
 /// Define a components module that contains all shared components for our app.
@@ -59,6 +58,7 @@ fn main() {
     dioxus::serve(|| async move {
         use crate::db::{db, init_db, Migrator};
         use sea_orm_migration::MigratorTrait;
+        use std::time::Duration;
 
         init_db().await;
         Migrator::up(db(), None)

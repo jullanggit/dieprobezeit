@@ -77,5 +77,4 @@ enum Reads {
 enum Edition {
     Table,
     Id,
-    Views,
 }

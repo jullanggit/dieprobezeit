@@ -1,8 +1,7 @@
 use crate::{
     components::{view_edition, EditionId},
-    db::{db, entities::reads},
     i18n,
-    track_views::{get_client_id, set_client_id, ClientId, NO_ID},
+    track_views::{ensure_client_id_set, get_client_id, NO_ID},
     views::Feedback,
 };
 use dioxus::prelude::*;
@@ -13,8 +12,9 @@ pub async fn record_read_times(
     edition_id: EditionId,
     page_times: Vec<f32>,
 ) -> Result<(), ServerFnError> {
-    let db = db();
+    use crate::db::{db, entities::reads};
 
+    let db = db();
     let client_id = get_client_id().map_or(NO_ID, |client_id| client_id.0);
 
     let entities = page_times
@@ -39,13 +39,9 @@ pub async fn record_read_times(
 #[component]
 pub fn Edition(id: EditionId) -> Element {
     let data = use_server_future(move || async move { view_edition(id).await })?;
+    use_hook(ensure_client_id_set);
 
     let lang = i18n::use_lang();
-
-    // TODO: actually make sure that this cookie is set.
-    if get_client_id().is_none() {
-        set_client_id();
-    }
 
     rsx! {
         div {

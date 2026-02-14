@@ -12,7 +12,11 @@ pub fn set_lang(language: Language) {
 /// Get language setting from cookies. Returns DEFAULT_LANG on failure.
 /// Also sets 'lang' to DEFAULT lang on failure on web builds.
 pub fn get_lang() -> Language {
-    get_or_insert_cookie(STORAGE_KEY, DEFAULT_LANG.to_str(), Language::from_str)
+    get_or_insert_cookie(
+        STORAGE_KEY,
+        || DEFAULT_LANG.to_str().to_string(),
+        Language::from_str,
+    )
 }
 
 pub fn use_lang() -> Signal<Language> {

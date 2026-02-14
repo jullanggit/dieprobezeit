@@ -1,9 +1,6 @@
-use crate::{
-    components::EditionId,
-    cookies::{get_cookie, get_or_insert_cookie, set_cookie},
-};
-use std::{collections::HashMap, str::FromStr};
-use uuid::{uuid, Uuid};
+use crate::cookies::{get_cookie, get_or_insert_cookie};
+use std::str::FromStr;
+use uuid::Uuid;
 
 pub const NO_ID: Uuid = Uuid::nil();
 
@@ -22,12 +19,13 @@ impl ClientId {
     }
 }
 
-type EditionProgress = f32;
-pub struct EditionProgresses(HashMap<EditionId, EditionProgress>);
-
 const STORAGE_KEY: &str = "client_id";
-pub fn set_client_id() {
-    set_cookie(STORAGE_KEY, &ClientId::new().0.to_string());
+pub fn ensure_client_id_set() {
+    get_or_insert_cookie(
+        STORAGE_KEY,
+        || ClientId::new().to_string(),
+        ClientId::from_str,
+    );
 }
 pub fn get_client_id() -> Option<ClientId> {
     get_cookie(STORAGE_KEY, ClientId::from_str)
