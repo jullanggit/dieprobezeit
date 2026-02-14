@@ -13,6 +13,7 @@ use dioxus::{
 };
 use sea_orm::{EntityTrait, QuerySelect, prelude::*};
 use serde::Deserialize;
+use time::Duration;
 
 static CLIENT: LazyLock<reqwest::Client> = LazyLock::new(reqwest::Client::new);
 
@@ -57,19 +58,19 @@ pub async fn sync_reads_to_kdrive() -> Result<()> {
                     format!(
                         "{},{},{},{}\n",
                         if i == 0 {
-                            total_unique_readers.unwrap_or_default()
+                            total_unique_readers.unwrap_or_default().to_string()
                         } else {
-                            0
+                            String::new()
                         },
                         edition_id,
-                        total_read_time,
+                        Duration::milliseconds(*total_read_time as i64),
                         unique_readers,
                     )
                 },
             ))
             .collect::<String>();
 
-    upload_to_kdrive("reads", csv).await
+    upload_to_kdrive("reads.csv", csv).await
 }
 
 pub async fn sync_feedback_to_kdrive() -> Result<()> {
