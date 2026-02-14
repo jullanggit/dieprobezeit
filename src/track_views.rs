@@ -7,7 +7,7 @@ use sea_orm::{
     prelude::Expr, ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder, Set,
 };
 use std::str::FromStr;
-use time::{Duration, UtcDateTime};
+use time::{Duration, PrimitiveDateTime, UtcDateTime};
 use uuid::Uuid;
 
 pub const NO_ID: Uuid = Uuid::nil();
@@ -60,8 +60,11 @@ pub async fn record_read_times(
         let merge = reads::Entity::find()
             .filter(reads::Column::ClientId.eq(client_id))
             .filter(reads::Column::EditionId.eq(edition_id))
-            .filter(reads::Column::PageNumber.eq(page))
-            .filter(reads::Column::Timestamp.gt(merge_cutoff))
+            .filter(reads::Column::PageNumber.eq(page as i32))
+            .filter(reads::Column::Timestamp.gt(PrimitiveDateTime::new(
+                merge_cutoff.date(),
+                merge_cutoff.time(),
+            )))
             .order_by_desc(reads::Column::Timestamp)
             .one(db)
             .await
