@@ -1,9 +1,13 @@
-use crate::components::EditionId;
-use crate::cookies::{get_cookie, get_or_insert_cookie};
+use crate::{
+    components::EditionId,
+    cookies::{get_cookie, get_or_insert_cookie},
+};
 use dioxus::prelude::*;
-use sea_orm::EntityTrait;
-use sea_orm::Set;
+use sea_orm::{
+    prelude::Expr, ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder, Set,
+};
 use std::str::FromStr;
+use time::{Duration, UtcDateTime};
 use uuid::Uuid;
 
 pub const NO_ID: Uuid = Uuid::nil();
@@ -45,21 +49,50 @@ pub async fn record_read_times(
     let db = db();
     let client_id = get_client_id().map_or(NO_ID, |client_id| client_id.0);
 
-    let entities = page_times
+    let merge_cutoff = UtcDateTime::now() - Duration::minutes(30);
+
+    for (page, time) in page_times
         .iter()
         .enumerate()
         .filter(|(_, time)| **time != 0.)
-        .map(|(page, time)| reads::ActiveModel {
-            client_id: Set(client_id),
-            edition_id: Set(edition_id),
-            page_number: Set(page as i32),
-            read_time: Set(*time),
-            ..Default::default()
-        });
-    reads::Entity::insert_many(entities)
-        .exec(db)
-        .await
-        .map_err(|err| ServerFnError::new(err.to_string()))?;
+    {
+        // try to find an existing entry within the merge cutoff
+        let merge = reads::Entity::find()
+            .filter(reads::Column::ClientId.eq(client_id))
+            .filter(reads::Column::EditionId.eq(edition_id))
+            .filter(reads::Column::PageNumber.eq(page))
+            .filter(reads::Column::Timestamp.gt(merge_cutoff))
+            .order_by_desc(reads::Column::Timestamp)
+            .one(db)
+            .await
+            .map_err(|err| ServerFnError::new(err.to_string()))?;
+
+        match merge {
+            Some(entity) => {
+                let mut active: reads::ActiveModel = entity.into();
+                let current_read_time = active.read_time.take().unwrap_or(0.0);
+                active.read_time = Set(current_read_time + *time);
+
+                active
+                    .update(db)
+                    .await
+                    .map_err(|err| ServerFnError::new(err.to_string()))?;
+            }
+            None => {
+                let entity = reads::ActiveModel {
+                    client_id: Set(client_id),
+                    edition_id: Set(edition_id),
+                    page_number: Set(page as i32),
+                    read_time: Set(*time),
+                    ..Default::default()
+                };
+                reads::Entity::insert(entity)
+                    .exec(db)
+                    .await
+                    .map_err(|err| ServerFnError::new(err.to_string()))?;
+            }
+        }
+    }
 
     Ok(())
 }
