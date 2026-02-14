@@ -77,17 +77,27 @@ fn main() {
             let mut interval = interval(Duration::from_mins(1));
 
             loop {
+                use crate::sync_db::sync_reads_to_kdrive;
+
                 interval.tick().await;
 
-                let res = sync_feedback_to_kdrive().await;
-                if let Err(e) = res {
-                    error!("Failed to sync feedback to kdrive: {e}");
+                macro_rules! sync {
+                    ($($fn:ident | $subject:literal),*) => {
+                        $(
+                            let res = $fn().await;
+                            if let Err(e) = res {
+                                error!("Failed to sync {} to kdrive: {e}", $subject);
+                            }
+
+                        )*
+                    };
                 }
 
-                let res = sync_editions_to_kdrive().await;
-                if let Err(e) = res {
-                    error!("Failed to sync editions to kdrive: {e}");
-                }
+                sync!(
+                    sync_editions_to_kdrive | "editions",
+                    sync_feedback_to_kdrive | "feedback",
+                    sync_reads_to_kdrive | "reads"
+                );
             }
         });
 
