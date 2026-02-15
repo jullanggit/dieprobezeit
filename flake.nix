@@ -47,6 +47,7 @@
             sqlite
             sea-orm-cli
             swc
+            just
           ];
         };
       }
