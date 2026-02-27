@@ -75,15 +75,14 @@ fn People(title: &'static str, people: Vec<Person>) -> Element {
 
     rsx! {
         h2 { class: "text-3xl", "{title}" }
-        div { class: "flex flex-wrap justify-center",
+        div { class: "flex flex-wrap justify-center gap-x-10 gap-y-6",
             for member in people {
-                div { class: "inline-flex w-auto flex-row items-center text-center",
-                    img {
-                        class: "rounded-full object-cover",
-                        src: member.profile_picture_url.clone(),
-                        width: 100,
-                        height: 100,
-                        style: "display: inline;",
+                div { class: "inline-flex flex-col items-center text-center",
+                    div { class: "w-24 h-24 rounded-full overflow-hidden",
+                        img {
+                            class: "w-full h-full object-cover",
+                            src: member.profile_picture_url.clone(),
+                        }
                     }
                     h3 { class: "text-2xl", "{member.nickname}" }
                     ul {
