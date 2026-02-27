@@ -135,7 +135,7 @@ pub async fn download_team_from_kdrive() -> Result<Team> {
     .map_err(|err| ServerFnError::new(format!("Failed to construct url: {err}")))?;
 
     let response = CLIENT
-        .post(url)
+        .get(url)
         .bearer_auth(oauth_token.trim())
         .send()
         .await
