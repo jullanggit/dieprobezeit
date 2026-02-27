@@ -44,7 +44,15 @@ pub static TEAM: RwLock<Team> = RwLock::const_new(Team {
 
 #[server]
 async fn get_team() -> Result<Team> {
-    Ok(TEAM.read().await.clone())
+    use rand::seq::SliceRandom;
+
+    let mut rng = rand::rng();
+
+    let mut team = TEAM.read().await.clone();
+    team.redaktion.shuffle(&mut rng);
+    team.journalists.shuffle(&mut rng);
+
+    Ok(team)
 }
 
 #[component]
