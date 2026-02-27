@@ -60,6 +60,7 @@ pub fn About() -> Element {
                 title: lang.read().redaktion_title(),
                 people: team.read().redaktion.clone(),
             }
+            br {}
             People {
                 title: lang.read().journalists_title(),
                 people: team.read().journalists.clone(),
@@ -73,21 +74,22 @@ fn People(title: &'static str, people: Vec<Person>) -> Element {
     let lang = i18n::use_lang();
 
     rsx! {
-        h3 { class: "text-2xl", "{title}" }
+        h2 { class: "text-3xl", "{title}" }
         div { class: "flex flex-wrap justify-center",
             for member in people {
-                img {
-                    class: "rounded-full object-cover",
-                    src: member.profile_picture_url.clone(),
-                    width: 100,
-                    height: 100,
-                }
-                br {}
-                h3 { class: "text-2xl", "{member.nickname}" }
-                br {}
-                ul {
-                    for role in &member.roles {
-                        li { "{role[*lang.read()]}" }
+                div { class: "inline-flex w-auto flex-row items-center text-center",
+                    img {
+                        class: "rounded-full object-cover",
+                        src: member.profile_picture_url.clone(),
+                        width: 100,
+                        height: 100,
+                        style: "display: inline;",
+                    }
+                    h3 { class: "text-2xl", "{member.nickname}" }
+                    ul {
+                        for role in &member.roles {
+                            li { "{role[*lang.read()]}" }
+                        }
                     }
                 }
             }
