@@ -48,6 +48,7 @@
             sea-orm-cli
             swc
             just
+            tailwindcss
           ];
         };
       }
