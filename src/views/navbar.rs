@@ -20,6 +20,7 @@ pub fn Navbar() -> Element {
                 Link { to: Route::Home {}, "Home" }
                 Link { to: Route::Archiv {}, "{lang.read().archive()}" }
                 Link { to: Route::Feedback {}, "{lang.read().feedback()}" }
+                Link { to: Route::About {}, "{lang.read().about_title()}" }
             }
 
             div { id: "language-selector",
@@ -42,7 +43,6 @@ pub fn Navbar() -> Element {
                 }
             }
         }
-
 
         // The `Outlet` component is used to render the next component inside the layout. In this case, it will render either
         // the [`Home`] or [`Blog`] component depending on the current route.

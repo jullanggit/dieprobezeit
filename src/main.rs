@@ -36,6 +36,8 @@ enum Route {
         Archiv {},
         #[route("/feedback")]
         Feedback,
+        #[route("/about")]
+        About,
 
     #[route("/editions/:id")]
     Edition { id: EditionId },
@@ -77,7 +79,7 @@ fn main() {
             let mut interval = interval(Duration::from_mins(1));
 
             loop {
-                use crate::sync_db::sync_reads_to_kdrive;
+                use crate::sync_db::{download_team_from_kdrive, sync_reads_to_kdrive};
 
                 interval.tick().await;
 
@@ -98,6 +100,12 @@ fn main() {
                     sync_feedback_to_kdrive | "feedback",
                     sync_reads_to_kdrive | "reads"
                 );
+
+                let team = download_team_from_kdrive().await;
+                match team {
+                    Ok(team) => *TEAM.write().await = team,
+                    Err(e) => error!("Failed to download team from kdrive: {e}"),
+                }
             }
         });
 
@@ -128,11 +136,7 @@ fn App() -> Element {
             rel: "stylesheet",
             href: "https://unpkg.com/pdfjs-dist@5.4.530/web/pdf_viewer.css", // keep in sync with PDF_RENDERER_JS
         }
-        script {
-            r#type: "module",
-            defer: true,
-            src: PDF_RENDERER_JS,
-        }
+        script { r#type: "module", defer: true, src: PDF_RENDERER_JS }
 
         // The router component renders the route enum we defined above. It will handle synchronization of the URL and render
         // the layouts and components for the active route.

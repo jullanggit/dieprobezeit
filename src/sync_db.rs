@@ -1,8 +1,11 @@
 use std::{iter, sync::LazyLock};
 
-use crate::db::{
-    db,
-    entities::{edition, feedback, reads},
+use crate::{
+    db::{
+        db,
+        entities::{edition, feedback, reads},
+    },
+    views::Team,
 };
 use dioxus::{
     fullstack::{
@@ -119,16 +122,38 @@ fn csv_str(string: String) -> String {
     format!("\"{}\"", string.replace('"', "\"\""))
 }
 
-async fn upload_to_kdrive(file_name: &str, content: String) -> Result<()> {
-    let read = async |file: &str| {
-        tokio::fs::read_to_string(format!("kdrive/{file}"))
-            .await
-            .map_err(|err| ServerFnError::new(format!("Failed to read {file}: {err}")))
-    };
+pub async fn download_team_from_kdrive() -> Result<Team> {
+    let drive_id = read_kdrive_config("drive-id").await?;
+    let oauth_token = read_kdrive_config("oauth-token").await?;
+    let file_id = read_kdrive_config("file-id").await?;
 
-    let drive_id = read("drive-id").await?;
-    let oauth_token = read("oauth-token").await?;
-    let directory_id = read("directory-id").await?;
+    let url = Url::parse(&format!(
+        "https://api.infomaniak.com/2/drive/{}/files/{}/download",
+        drive_id.trim(),
+        file_id.trim()
+    ))
+    .map_err(|err| ServerFnError::new(format!("Failed to construct url: {err}")))?;
+
+    let response = CLIENT
+        .post(url)
+        .bearer_auth(oauth_token.trim())
+        .send()
+        .await
+        .map_err(reqwest_response_to_serverfn_err)?;
+
+    Ok(response.json().await?)
+}
+
+async fn read_kdrive_config(file_name: &str) -> Result<String> {
+    tokio::fs::read_to_string(format!("kdrive/{file_name}"))
+        .await
+        .map_err(|err| ServerFnError::new(format!("Failed to read {file_name}: {err}")).into())
+}
+
+async fn upload_to_kdrive(file_name: &str, content: String) -> Result<()> {
+    let drive_id = read_kdrive_config("drive-id").await?;
+    let oauth_token = read_kdrive_config("oauth-token").await?;
+    let directory_id = read_kdrive_config("directory-id").await?;
 
     let url = Url::parse_with_params(
         &format!(

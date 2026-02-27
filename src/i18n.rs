@@ -142,4 +142,16 @@ Translation! {
         DE: "Archiv wird geladen...",
         CH: "Archiv isch am lade...",
         EN: "Loading archive...")
+    about_title: (
+        DE: "Über Uns",
+        CH: "Über Üs",
+        EN: "About Us")
+    redaktion_title: (
+        DE: "Die Redaktion",
+        CH: "D Redaktion",
+        EN: "The Editors") // TODO
+    journalists_title: (
+        DE: "Die Journalisten",
+        CH: "D Journaliste",
+        EN: "The Journalists")
 }

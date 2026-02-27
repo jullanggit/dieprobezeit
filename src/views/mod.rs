@@ -25,3 +25,8 @@ pub use edition::Edition;
 
 mod feedback;
 pub use feedback::Feedback;
+
+mod about;
+#[cfg(feature = "server")]
+pub use about::TEAM;
+pub use about::{About, Team};
