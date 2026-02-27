@@ -54,7 +54,7 @@ pub fn About() -> Element {
 
     rsx! {
         div {
-            h1 { class: "text-4xl", "{lang.read().about_title()" }
+            h1 { class: "text-4xl", "{lang.read().about_title()}" }
             // TODO: "{lang.read().about_text()}"
             People {
                 title: lang.read().redaktion_title(),
