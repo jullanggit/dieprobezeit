@@ -14,3 +14,7 @@ generate-entities:
 # Generate a sea-orm migration
 generate-migration name:
 	sea-orm-cli migrate generate -d src/db/migrations {{name}}
+
+fmt:
+	cargo fmt
+	dx fmt
