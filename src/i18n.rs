@@ -149,7 +149,7 @@ Translation! {
     redaktion_title: (
         DE: "Die Redaktion",
         CH: "D Redaktion",
-        EN: "The Editors") // TODO
+        EN: "The Team")
     journalists_title: (
         DE: "Die Journalisten",
         CH: "D Journaliste",
