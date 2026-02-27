@@ -19,7 +19,7 @@ pub fn Navbar() -> Element {
             div { id: "navbar-links",
                 Link { to: Route::Home {}, "Home" }
                 Link { to: Route::Archiv {}, "{lang.read().archive()}" }
-                Link { to: Route::Feedback {}, "Feedback" }
+                Link { to: Route::Feedback {}, "{lang.read().feedback()}" }
             }
 
             div { id: "language-selector",

@@ -106,6 +106,10 @@ Translation! {
         DE: "Keine Ausgabe gefunden",
         CH: "Kei Usgab gfunde",
         EN: "No edition found")
+    feedback: (
+        DE: "Rückmeldung",
+        CH: "Rückmeldig",
+        EN: "Feedback")
     archive: (
         DE: "Archiv",
         CH: "Archiv",

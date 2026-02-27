@@ -62,7 +62,7 @@ pub fn Feedback(edition_id: Option<EditionId>) -> Element {
                         submitted.set(true);
                     }
                 },
-                label { "Feedback" }
+                label { "{lang.read().feedback()}" }
                 br {}
                 textarea {
                     id: "content",
