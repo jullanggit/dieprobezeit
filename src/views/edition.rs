@@ -19,6 +19,7 @@ pub fn Edition(id: EditionId) -> Element {
                 Some(Ok(data)) => rsx! {
                     h3 { class: "text-2xl", "{data.label()}" }
                     div {
+                        key: "{id}",
                         class: "pdfjs-container",
                         "data-pdf-src": "/pdfs/{data.date}.pdf",
                         "data-edition-id": "{id}",

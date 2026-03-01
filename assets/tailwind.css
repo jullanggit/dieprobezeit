@@ -558,10 +558,6 @@ video {
   position: static;
 }
 
-.inline {
-  display: inline;
-}
-
 .flex {
   display: flex;
 }
@@ -590,20 +586,12 @@ video {
   height: 100%;
 }
 
-.w-auto {
-  width: auto;
-}
-
 .w-24 {
   width: 6rem;
 }
 
 .w-full {
   width: 100%;
-}
-
-.flex-row {
-  flex-direction: row;
 }
 
 .flex-col {
@@ -620,11 +608,6 @@ video {
 
 .justify-center {
   justify-content: center;
-}
-
-.gap-x-8 {
-  -moz-column-gap: 2rem;
-       column-gap: 2rem;
 }
 
 .gap-x-10 {

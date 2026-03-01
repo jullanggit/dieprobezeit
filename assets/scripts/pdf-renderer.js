@@ -11,8 +11,16 @@ const renderState = new WeakMap();
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `${PDFJS_CDN_BASE}/build/pdf.worker.min.mjs`;
 
-function scheduleRender(container) {
+function getState(container) {
   const state = renderState.get(container) || {};
+  if (!state.pages) state.pages = [];
+  if (!state.readTimesSetup) state.readTimesSetup = false;
+  if (!state.generation) state.generation = 0;
+  return state;
+}
+
+function scheduleRender(container) {
+  const state = getState(container);
 
   if (container.dataset.pdfjsRendering === "true") {
     state.pending = true;
@@ -72,21 +80,43 @@ function getVisualViewport() {
       };
 }
 
-let pages = [];
-let readTimesSetup = false;
-
 async function renderPdf(container) {
   const pdfUrl = container.dataset.pdfSrc;
   if (!pdfUrl) return;
   if (container.dataset.pdfjsRendering === "true") return;
 
+  const state = getState(container);
+  state.generation += 1;
+  const generation = state.generation;
+
+  cancelRenderWork(state);
+
+  // If the PDF changed, drop cached page divs + read-time wiring.
+  if (state.pdfUrl !== pdfUrl) {
+    state.pdfUrl = pdfUrl;
+    state.pages = [];
+    state.readTimesSetup = false;
+
+    if (state.loadingTask) {
+      try {
+        await state.loadingTask.destroy();
+      } catch {}
+      state.loadingTask = null;
+    }
+  }
+
   container.dataset.pdfjsRendering = "true";
   container.innerHTML = "Loading PDF...";
 
   const loadingTask = pdfjsLib.getDocument({ url: pdfUrl });
+  state.loadingTask = loadingTask;
+
+  renderState.set(container, state);
 
   try {
     const pdf = await loadingTask.promise;
+
+    if (getState(container).generation !== generation) return;
 
     const eventBus = new pdfjsViewer.EventBus();
     const linkService = new pdfjsViewer.PDFLinkService({
@@ -137,6 +167,12 @@ async function renderPdf(container) {
     linkService.setViewer(viewer);
 
     for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+      const newState = getState(container);
+      if (newState.generation !== generation) {
+        cancelRenderWork(newState);
+        return;
+      }
+
       const page = await pdf.getPage(pageNumber);
 
       const baseViewport = page.getViewport({ scale: 1 });
@@ -160,12 +196,15 @@ async function renderPdf(container) {
 
       const viewport = page.getViewport({ scale: finalScale });
 
+      const pages = state.pages;
       const pageDiv = (pages[pageNumber - 1] ??= document.createElement("div"));
 
       pageDiv.className = "pdf-page";
       pageDiv.dataset.pageNumber = String(pageNumber);
       pageDiv.style.width = `${Math.round(viewport.width)}px`;
       pageDiv.style.height = `${Math.round(viewport.height)}px`;
+
+      pageDiv.replaceChildren();
 
       const canvas = document.createElement("canvas");
       canvas.className = "pdf-canvas";
@@ -192,11 +231,15 @@ async function renderPdf(container) {
 
       container.appendChild(pageDiv);
 
-      await page.render({
+      const renderTask = page.render({
         canvasContext: context,
         viewport,
         transform: [pixelRatio, 0, 0, pixelRatio, 0, 0],
-      }).promise;
+      });
+      state.renderTasks.set(pageNumber, renderTask);
+      await renderTask.promise.finally(() =>
+        state.renderTasks.delete(pageNumber),
+      );
 
       const annotations = await page.getAnnotations({ intent: "display" });
 
@@ -238,9 +281,9 @@ async function renderPdf(container) {
       pageViews.set(pageNumber, { div: pageDiv, viewport });
     }
 
-    if (!readTimesSetup) {
-      readTimesSetup = true;
-      setupReadTimes(container);
+    if (!state.readTimesSetup) {
+      state.readTimesSetup = true;
+      setupReadTimes(container, state);
     }
 
     container.dataset.pdfjsWidth = String(
@@ -251,15 +294,30 @@ async function renderPdf(container) {
     container.innerHTML = "Failed to load PDF.";
     console.error("Failed to render PDF", error);
   } finally {
+    const state = getState(container);
+    state.loadingTask = null;
+    renderState.set(container, state);
+
     container.dataset.pdfjsRendering = "false";
 
-    const state = renderState.get(container) || {};
     if (state.pending) {
       state.pending = false;
       renderState.set(container, state);
       scheduleRender(container);
     }
   }
+}
+
+function cancelRenderWork(state) {
+  state.renderTasks?.forEach((t) => {
+    try {
+      t.cancel();
+    } catch {}
+  });
+  state.renderTasks = new Map();
+
+  state.visibilityObserver?.disconnect?.();
+  state.visibilityObserver = null;
 }
 
 function scanAndRender() {
@@ -271,6 +329,17 @@ function scanAndRender() {
 function observeDom() {
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
+      if (mutation.type === "attributes") {
+        const element = mutation.target;
+        if (
+          element instanceof HTMLElement &&
+          element.matches(CONTAINER_SELECTOR)
+        ) {
+          scheduleRender(element);
+        }
+        continue;
+      }
+
       for (const node of mutation.addedNodes) {
         if (!(node instanceof HTMLElement)) continue;
 
@@ -285,11 +354,16 @@ function observeDom() {
     }
   });
 
-  observer.observe(document.body, { childList: true, subtree: true });
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ["data-pdf-src"],
+  });
 }
 
-function setupReadTimes(container) {
-  setupVisibility();
+function setupReadTimes(container, state) {
+  setupVisibility(state);
 
   const editionId = Number(container.dataset.editionId);
 
@@ -304,16 +378,16 @@ function setupReadTimes(container) {
 
     // only actually increment/send read times if the tab is focused
     if (!document.hidden && document.hasFocus()) {
-      updateReadTimes(updateElapsed);
+      updateReadTimes(updateElapsed, state);
 
       const sendElapsed = now - lastSend;
       if (sendElapsed > 5000 && !isSending) {
         isSending = true;
 
         try {
-          await sendReadTimes(editionId);
+          await sendReadTimes(editionId, state);
           lastSend = now;
-          clearReadTimes();
+          clearReadTimes(state);
         } catch (error) {
           console.error("Failed to send read times:", error);
         } finally {
@@ -328,20 +402,20 @@ function setupReadTimes(container) {
   tick();
 }
 
-function updateReadTimes(elapsed) {
-  pages.forEach((page) => {
+function updateReadTimes(elapsed, state) {
+  state.pages.forEach((page) => {
     const current = Number(page.dataset.time) || 0;
     page.dataset.time = current + elapsed * page.dataset.visibility;
   });
 }
 
-async function sendReadTimes(editionId) {
+async function sendReadTimes(editionId, state) {
   const response = await fetch("/api/record-read-times", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       edition_id: editionId,
-      page_times: pages.map((page) => Number(page.dataset.time)),
+      page_times: state.pages.map((page) => Number(page.dataset.time)),
     }),
   });
 
@@ -351,11 +425,13 @@ async function sendReadTimes(editionId) {
   }
 }
 
-function clearReadTimes() {
-  pages.forEach((page) => (page.dataset.time = 0));
+function clearReadTimes(state) {
+  state.pages.forEach((page) => (page.dataset.time = 0));
 }
 
-function setupVisibility() {
+function setupVisibility(state) {
+  state.visibilityObserver?.disconnect?.();
+
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
@@ -366,10 +442,13 @@ function setupVisibility() {
       threshold: Array.from({ length: 101 }, (_, i) => i / 100),
     },
   );
-  pages.forEach((page) => {
+
+  state.pages.forEach((page) => {
     page.dataset.visibility = 0;
     observer.observe(page);
   });
+
+  state.visibilityObserver = observer;
 }
 
 function setup() {
