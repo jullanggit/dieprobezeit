@@ -23,7 +23,7 @@ pub fn Edition(id: EditionId) -> Element {
                             id: "edition-page-{i}",
                             style: "display: inline-block; background-color: white;",
                             object {
-                                data: "/svgs/{data.edition.date}/-{i}.svg",
+                                data: "/svgs/{data.edition.date}/{i}.svg",
                                 height: "100%",
                                 width: "auto",
                             }

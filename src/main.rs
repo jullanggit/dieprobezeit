@@ -70,6 +70,7 @@ fn main() {
 
         let router = dioxus::server::router(App)
             .nest_service("/images", tower_http::services::ServeDir::new("images"))
+            .nest_service("/svgs", tower_http::services::ServeDir::new("svgs"))
             .nest_service("/pdfs", tower_http::services::ServeDir::new("pdfs"));
 
         // periodically sync feedback to kdrive
