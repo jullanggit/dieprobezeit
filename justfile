@@ -18,3 +18,6 @@ generate-migration name:
 fmt:
 	cargo fmt
 	dx fmt
+
+convert-pdf date:
+	cargo -Zscript convert_pdf.rs {{date}}

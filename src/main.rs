@@ -8,6 +8,7 @@ use views::*;
 mod components;
 mod views;
 
+mod convert_pdf; // include here so rust-analyzer works for the script
 mod cookies;
 mod db;
 #[cfg(feature = "server")]

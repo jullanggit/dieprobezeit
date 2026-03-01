@@ -8,6 +8,7 @@ Cargo.lock
 
 pdfs/*
 images/*
+svgs/*
 
 **.syncthing**
 
