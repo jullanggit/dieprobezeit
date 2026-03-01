@@ -26,6 +26,7 @@ COPY --from=builder /app/target/dx/dieprobezeit/release/web/dieprobezeit /app/di
 COPY --from=builder /app/target/dx/dieprobezeit/release/web/public /app/public
 
 RUN mkdir pdfs
+RUN mkdir images
 RUN mkdir kdrive
 
 EXPOSE 8080

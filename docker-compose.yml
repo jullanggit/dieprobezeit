@@ -4,6 +4,7 @@ services:
     image: ghcr.io/jullanggit/dieprobezeit-backend:latest
     volumes:
       - ./pdfs:/app/pdfs:ro
+      - ./images:/app/images:ro
       - ./kdrive:/app/kdrive:ro
       - ./mng.db:/app/mng.db:rw
     network_mode: "host"
