@@ -19,8 +19,8 @@ pub fn Navbar() -> Element {
             div { id: "navbar-links",
                 Link { to: Route::Home {}, "Home" }
                 Link { to: Route::Archiv {}, "{lang.read().archive()}" }
-                Link { to: Route::Feedback {}, "{lang.read().feedback()}" }
                 Link { to: Route::About {}, "{lang.read().about_title()}" }
+                Link { to: Route::Feedback {}, "{lang.read().feedback()}" }
             }
 
             div { id: "language-selector",
