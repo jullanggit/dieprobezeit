@@ -1,6 +1,5 @@
 use crate::i18n::{self, Language};
 use dioxus::prelude::*;
-use rand::seq::IndexedRandom;
 use serde::{Deserialize, Serialize};
 use std::ops::Index;
 #[cfg(feature = "server")]
@@ -45,7 +44,7 @@ pub static TEAM: RwLock<Team> = RwLock::const_new(Team {
 
 #[server]
 async fn get_team() -> Result<Team> {
-    use rand::seq::SliceRandom;
+    use rand::seq::{IndexedRandom, SliceRandom};
 
     let mut rng = rand::rng();
 
