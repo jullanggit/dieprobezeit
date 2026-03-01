@@ -7,6 +7,7 @@ mng.db
 Cargo.lock
 
 pdfs/*
+images/*
 
 **.syncthing**
 
