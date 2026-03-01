@@ -1,16 +1,16 @@
-use std::ops::Index;
-
+use crate::i18n::{self, Language};
 use dioxus::prelude::*;
+use rand::seq::IndexedRandom;
 use serde::{Deserialize, Serialize};
+use std::ops::Index;
 #[cfg(feature = "server")]
 use tokio::sync::RwLock;
-
-use crate::i18n::{self, Language};
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct Team {
     redaktion: Vec<Person>,
     journalists: Vec<Person>,
+    ronnie_middle_names: Vec<String>,
 }
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 struct Person {
@@ -40,6 +40,7 @@ impl Index<Language> for TranslatedRole {
 pub static TEAM: RwLock<Team> = RwLock::const_new(Team {
     redaktion: Vec::new(),
     journalists: Vec::new(),
+    ronnie_middle_names: Vec::new(),
 });
 
 #[server]
@@ -51,6 +52,15 @@ async fn get_team() -> Result<Team> {
     let mut team = TEAM.read().await.clone();
     team.redaktion.shuffle(&mut rng);
     team.journalists.shuffle(&mut rng);
+
+    team.journalists.iter_mut().map(|journalist| {
+        journalist.nickname = journalist.nickname.replace(
+            "$ronnieNickName",
+            team.ronnie_middle_names
+                .choose(&mut rng)
+                .ok_or("No middle names for Ronnie")?,
+        );
+    });
 
     Ok(team)
 }
