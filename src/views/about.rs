@@ -52,14 +52,14 @@ async fn get_team() -> Result<Team> {
     team.redaktion.shuffle(&mut rng);
     team.journalists.shuffle(&mut rng);
 
-    team.journalists.iter_mut().map(|journalist| {
+    for journalist in &mut team.journalists {
         journalist.nickname = journalist.nickname.replace(
             "$ronnieNickName",
             team.ronnie_middle_names
                 .choose(&mut rng)
-                .ok_or("No middle names for Ronnie")?,
+                .expect("Ronnie should have middle names"),
         );
-    });
+    }
 
     Ok(team)
 }
