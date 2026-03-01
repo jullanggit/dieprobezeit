@@ -26,7 +26,18 @@ function getState(container) {
 
 async function destroyDocument(state) {
   state.stopReadTimes?.();
+  state.stopReadTimes = () => {};
+
   cancelRenderWork(state);
+
+  // aggressively release canvas memory held by detached DOM nodes
+  for (const pageDiv of state.pages || []) {
+    pageDiv.querySelectorAll?.("canvas").forEach((c) => {
+      // nuking size forces backing store release in most browsers
+      c.width = 0;
+      c.height = 0;
+    });
+  }
 
   // release PDF.js resources (main + worker thread)
   try {
