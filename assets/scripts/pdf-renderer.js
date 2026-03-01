@@ -16,7 +16,47 @@ function getState(container) {
   if (!state.pages) state.pages = [];
   if (!state.readTimesSetup) state.readTimesSetup = false;
   if (!state.generation) state.generation = 0;
+  if (!state.renderTasks) state.renderTasks = new Map();
+  if (!state.stopReadTimes) state.stopReadTimes = () => {};
+  state.pdf ??= null;
+  state.loadingTask ??= null;
+
   return state;
+}
+
+async function destroyDocument(state) {
+  state.stopReadTimes?.();
+  cancelRenderWork(state);
+
+  // release PDF.js resources (main + worker thread)
+  try {
+    await state.pdf?.cleanup?.();
+  } catch {}
+  try {
+    await state.pdf?.destroy?.();
+  } catch {}
+  state.pdf = null;
+
+  try {
+    await state.loadingTask?.destroy?.();
+  } catch {}
+  state.loadingTask = null;
+}
+
+function destroyContainer(container) {
+  const state = renderState.get(container);
+  if (!state) return;
+
+  try {
+    clearTimeout(state.timer);
+  } catch {}
+  try {
+    container._pdfResizeObserver?.disconnect?.();
+  } catch {}
+  container._pdfResizeObserver = null;
+
+  destroyDocument(state);
+  renderState.delete(container);
 }
 
 function scheduleRender(container) {
@@ -97,24 +137,35 @@ async function renderPdf(container) {
     state.pages = [];
     state.readTimesSetup = false;
 
-    if (state.loadingTask) {
-      try {
-        await state.loadingTask.destroy();
-      } catch {}
-      state.loadingTask = null;
-    }
+    await destroyDocument(state);
   }
 
   container.dataset.pdfjsRendering = "true";
   container.innerHTML = "Loading PDF...";
 
-  const loadingTask = pdfjsLib.getDocument({ url: pdfUrl });
-  state.loadingTask = loadingTask;
-
   renderState.set(container, state);
 
   try {
-    const pdf = await loadingTask.promise;
+    let pdf = state.pdf;
+
+    if (!pdf) {
+      const loadingTask = pdfjsLib.getDocument({ url: pdfUrl });
+      state.loadingTask = loadingTask;
+      renderState.set(container, state);
+
+      pdf = await loadingTask.promise;
+      if (getState(container).generation !== generation) {
+        // generation changed mid-load; release what we loaded
+        try {
+          await pdf.destroy?.();
+        } catch {}
+        return;
+      }
+
+      state.pdf = pdf;
+      state.loadingTask = null;
+      renderState.set(container, state);
+    }
 
     if (getState(container).generation !== generation) return;
 
@@ -279,6 +330,10 @@ async function renderPdf(container) {
       await textLayer.render(textContent);
 
       pageViews.set(pageNumber, { div: pageDiv, viewport });
+
+      try {
+        page.cleanup?.();
+      } catch {}
     }
 
     if (!state.readTimesSetup) {
@@ -349,6 +404,15 @@ function observeDom() {
           node
             .querySelectorAll?.(CONTAINER_SELECTOR)
             .forEach((c) => scheduleRender(c));
+        }
+      }
+
+      for (const node of mutation.removedNodes) {
+        if (!(node instanceof HTMLElement)) continue;
+        if (node.matches?.(CONTAINER_SELECTOR)) {
+          destroyContainer(node);
+        } else {
+          node.querySelectorAll?.(CONTAINER_SELECTOR).forEach(destroyContainer);
         }
       }
     }
