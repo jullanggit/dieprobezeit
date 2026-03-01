@@ -427,16 +427,29 @@ function observeDom() {
 }
 
 function setupReadTimes(container, state) {
-  setupVisibility(state);
+  // stop any previous ticker just in case
+  state.stopReadTimes?.();
 
+  setupVisibility(state);
   const editionId = Number(container.dataset.editionId);
 
-  let lastUpdate = Date.now();
-  let lastSend = Date.now();
+  let stopped = false;
+  let timeoutId = null;
+
+  state.stopReadTimes = () => {
+    stopped = true;
+    if (timeoutId !== null) clearTimeout(timeoutId);
+    timeoutId = null;
+  };
+
+  let lastUpdate = performance.now();
+  let lastSend = performance.now();
   let isSending = false;
 
-  async function tick() {
-    const now = Date.now();
+  const tick = async () => {
+    if (stopped) return;
+
+    const now = performance.now();
     const updateElapsed = now - lastUpdate;
     lastUpdate = now; // update outside of focused-detection to skip any unfocused time
 
@@ -447,7 +460,6 @@ function setupReadTimes(container, state) {
       const sendElapsed = now - lastSend;
       if (sendElapsed > 5000 && !isSending) {
         isSending = true;
-
         try {
           await sendReadTimes(editionId, state);
           lastSend = now;
@@ -460,8 +472,8 @@ function setupReadTimes(container, state) {
       }
     }
 
-    setTimeout(tick, 100);
-  }
+    timeoutId = setTimeout(tick, 100);
+  };
 
   tick();
 }
