@@ -21,7 +21,7 @@ pub fn Edition(id: EditionId) -> Element {
                     for i in 1..=data.num_pages {
                         div {
                             id: "edition-page-{i}",
-                            style: "display: inline-block; background-color: white;",
+                            style: "display: inline-block; background-color: white; margin-right: 5px",
                             object {
                                 data: "/svgs/{data.edition.date}/{i}.svg",
                                 height: "auto",
