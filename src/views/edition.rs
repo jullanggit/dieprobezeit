@@ -24,8 +24,8 @@ pub fn Edition(id: EditionId) -> Element {
                             style: "display: inline-block; background-color: white;",
                             object {
                                 data: "/svgs/{data.edition.date}/{i}.svg",
-                                height: "100%",
-                                width: "auto",
+                                height: "auto",
+                                width: "100%",
                             }
                         }
                     }
