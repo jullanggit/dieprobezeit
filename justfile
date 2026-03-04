@@ -22,5 +22,5 @@ fmt:
 convert-pdf date:
 	cargo -Zscript convert_pdf.rs {{date}}
 
-publish-edition date title hidden=false: (convert-pdf date)
+publish-edition date title hidden="false": (convert-pdf date)
     sqlite3 mng.db "insert into edition (date, title, hidden) values ({{date}}, {{title}}, {{hidden}});"
