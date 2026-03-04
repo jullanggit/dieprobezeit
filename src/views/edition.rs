@@ -175,7 +175,9 @@ fn track_reads(data: Resource<Result<ViewEdition, ServerFnError>>, edition_id: E
                     return;
                 }
 
-                record_read_times(edition_id, snapshot);
+                spawn(async move {
+                    record_read_times(edition_id, snapshot).await;
+                });
             }
         });
 
