@@ -138,10 +138,9 @@ fn track_reads(data: Resource<Result<ViewEdition, ServerFnError>>, edition_id: E
             let delta_t = now - last_sample();
             last_sample.set(now);
 
-            // TODO: see if we had more checks before
             if window()
                 .and_then(|window| window.document())
-                .map(|document| document.hidden())
+                .map(|document| document.hidden() || !document.has_focus().unwrap_or(true))
                 .unwrap_or_default()
             {
                 return;
