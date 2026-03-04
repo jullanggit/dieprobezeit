@@ -33,6 +33,10 @@ web-sys = { version = "0.3", optional = true, features = [
 	"HtmlDocument",
 	"Storage",
 	"Crypto",
+	"IntersectionObserver",
+	"IntersectionObserverInit",
+	"IntersectionObserverEntry",
+	"Performance",
 ] }
 
 [features]

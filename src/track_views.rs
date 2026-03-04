@@ -43,7 +43,7 @@ pub fn get_client_id() -> Option<ClientId> {
 /// Record read times from a client.
 /// Merge any reads within 30 minutes.
 /// Cap read time at 3 minutes per page. This resets every day to permit re-reads.
-#[post("/api/record-read-times")]
+#[server]
 pub async fn record_read_times(
     edition_id: EditionId,
     page_times: Vec<f32>,
