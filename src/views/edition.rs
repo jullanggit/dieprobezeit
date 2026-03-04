@@ -42,6 +42,7 @@ pub fn Edition(id: EditionId) -> Element {
 
 #[cfg(feature = "web")]
 fn track_reads(data: Resource<Result<ViewEdition, ServerFnError>>, edition_id: EditionId) {
+    use dioxus::core::Runtime;
     use std::rc::Rc;
     use web_sys::{
         Element, IntersectionObserver, IntersectionObserverEntry, IntersectionObserverInit,
@@ -53,6 +54,9 @@ fn track_reads(data: Resource<Result<ViewEdition, ServerFnError>>, edition_id: E
         window,
     };
 
+    let runtime = Runtime::current();
+    let scope = runtime.current_scope_id();
+
     let mut visibilities = use_signal(|| Vec::new());
     let mut acc = use_signal(|| Vec::new());
 
@@ -61,58 +65,67 @@ fn track_reads(data: Resource<Result<ViewEdition, ServerFnError>>, edition_id: E
 
     // initialize
     let mut initialized = use_signal(|| false);
-    use_effect(move || {
-        if initialized() {
-            return;
-        }
-        let Some(Ok(data)) = &*data.read_unchecked() else {
-            return;
-        };
-        let num_pages = data.num_pages as usize;
-        visibilities.set(vec![0.0; num_pages]);
-        acc.set(vec![0.0; num_pages]);
+    use_effect({
+        let runtime = runtime.clone();
+        move || {
+            if initialized() {
+                return;
+            }
+            let Some(Ok(data)) = &*data.read_unchecked() else {
+                return;
+            };
+            let num_pages = data.num_pages as usize;
+            visibilities.set(vec![0.0; num_pages]);
+            acc.set(vec![0.0; num_pages]);
 
-        let callback = Closure::new(move |entries: js_sys::Array, _obs: IntersectionObserver| {
-            for entry in entries {
-                let entry: IntersectionObserverEntry = entry.unchecked_into();
-                let target: Element = entry.target();
+            let callback = Closure::new({
+                let runtime = runtime.clone();
+                move |entries: js_sys::Array, _obs: IntersectionObserver| {
+                    runtime.in_scope(scope, || {
+                        for entry in entries {
+                            let entry: IntersectionObserverEntry = entry.unchecked_into();
+                            let target: Element = entry.target();
 
-                if let Some(id) = target.get_attribute("id")
-                    && let Some(page_str) = id.strip_prefix("edition-page-")
-                    && let Ok(page) = page_str.parse::<usize>()
-                {
-                    visibilities
-                        .get_mut(page - 1)
-                        .map(|mut visibility| *visibility = entry.intersection_ratio());
+                            if let Some(id) = target.get_attribute("id")
+                                && let Some(page_str) = id.strip_prefix("edition-page-")
+                                && let Ok(page) = page_str.parse::<usize>()
+                            {
+                                visibilities
+                                    .get_mut(page - 1)
+                                    .map(|mut visibility| *visibility = entry.intersection_ratio());
+                            }
+                        }
+                    });
+                }
+            });
+
+            let thresholds = js_sys::Array::new();
+            for i in 0..=100 {
+                thresholds.push(&JsValue::from_f64(i as f64 / 100.0));
+            }
+
+            let mut init = IntersectionObserverInit::new();
+            init.threshold(&thresholds.into());
+
+            let obs =
+                IntersectionObserver::new_with_options(callback.as_ref().unchecked_ref(), &init)
+                    .expect("IntersectionObserver should be available");
+
+            let doc = window()
+                .expect("Window should be available")
+                .document()
+                .expect("Document should be available");
+            for page in 1..=num_pages {
+                if let Some(element) = doc.get_element_by_id(&format!("edition-page-{page}")) {
+                    obs.observe(&element);
                 }
             }
-        });
 
-        let thresholds = js_sys::Array::new();
-        for i in 0..=100 {
-            thresholds.push(&JsValue::from_f64(i as f64 / 100.0));
+            observer.set(Some(obs));
+            _observer_callback.set(Some(Rc::new(callback))); // keep callback alive
+
+            initialized.set(true);
         }
-
-        let mut init = IntersectionObserverInit::new();
-        init.threshold(&thresholds.into());
-
-        let obs = IntersectionObserver::new_with_options(callback.as_ref().unchecked_ref(), &init)
-            .expect("IntersectionObserver should be available");
-
-        let doc = window()
-            .expect("Window should be available")
-            .document()
-            .expect("Document should be available");
-        for page in 1..=num_pages {
-            if let Some(element) = doc.get_element_by_id(&format!("edition-page-{page}")) {
-                obs.observe(&element);
-            }
-        }
-
-        observer.set(Some(obs));
-        _observer_callback.set(Some(Rc::new(callback))); // keep callback alive
-
-        initialized.set(true);
     });
 
     let now_ms = || {
@@ -133,50 +146,55 @@ fn track_reads(data: Resource<Result<ViewEdition, ServerFnError>>, edition_id: E
             return;
         }
 
-        let tick = Closure::new(move || {
-            let now = now_ms();
-            let delta_t = now - last_sample();
-            last_sample.set(now);
+        let tick = Closure::new({
+            let runtime = runtime.clone();
+            move || {
+                runtime.in_scope(scope, || {
+                    let now = now_ms();
+                    let delta_t = now - last_sample();
+                    last_sample.set(now);
 
-            if window()
-                .and_then(|window| window.document())
-                .map(|document| document.hidden() || !document.has_focus().unwrap_or(true))
-                .unwrap_or_default()
-            {
-                return;
-            }
+                    if window()
+                        .and_then(|window| window.document())
+                        .map(|document| document.hidden() || !document.has_focus().unwrap_or(true))
+                        .unwrap_or_default()
+                    {
+                        return;
+                    }
 
-            let visibilities = visibilities();
+                    let visibilities = visibilities();
 
-            let total = visibilities.iter().sum::<f64>();
-            if total <= 0.0 || delta_t <= 0.0 {
-                return;
-            }
+                    let total = visibilities.iter().sum::<f64>();
+                    if total <= 0.0 || delta_t <= 0.0 {
+                        return;
+                    }
 
-            for (visibility, mut acc_elem) in visibilities.iter().zip(acc.iter_mut()) {
-                *acc_elem += delta_t * (*visibility / total)
-            }
+                    for (visibility, mut acc_elem) in visibilities.iter().zip(acc.iter_mut()) {
+                        *acc_elem += delta_t * (*visibility / total)
+                    }
 
-            if now - last_flush() >= 5000.0 {
-                use crate::track_views::record_read_times;
+                    if now - last_flush() >= 5000.0 {
+                        use crate::track_views::record_read_times;
 
-                last_flush.set(now);
+                        last_flush.set(now);
 
-                // Take a snapshot and reset accumulator
-                let snapshot = acc()
-                    .into_iter()
-                    .map(|float| float as f32)
-                    .collect::<Vec<_>>();
-                for mut value in acc.iter_mut() {
-                    *value = 0.0;
-                }
+                        // Take a snapshot and reset accumulator
+                        let snapshot = acc()
+                            .into_iter()
+                            .map(|float| float as f32)
+                            .collect::<Vec<_>>();
+                        for mut value in acc.iter_mut() {
+                            *value = 0.0;
+                        }
 
-                if snapshot.iter().all(|value| *value == 0.0) {
-                    return;
-                }
+                        if snapshot.iter().all(|value| *value == 0.0) {
+                            return;
+                        }
 
-                spawn(async move {
-                    record_read_times(edition_id, snapshot).await;
+                        spawn(async move {
+                            record_read_times(edition_id, snapshot).await;
+                        });
+                    }
                 });
             }
         });
