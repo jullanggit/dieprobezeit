@@ -21,7 +21,7 @@ FROM docker.io/library/debian:stable-slim
 WORKDIR /app
 
 # backend binary
-COPY --from=builder /app/target/dx/dieprobezeit/release/web/dieprobezeit /app/dieprobezeit
+COPY --from=builder /app/target/dx/dieprobezeit/release/web/server /app/dieprobezeit
 # static files
 COPY --from=builder /app/target/dx/dieprobezeit/release/web/public /app/public
 
