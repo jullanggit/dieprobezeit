@@ -16,7 +16,7 @@ pub type EditionId = i32;
 //
 // When the server function is called from the client, it will just serialize the arguments, call the API, and deserialize the
 // response.
-#[server]
+#[get("/api/v1/editions")]
 pub async fn fetch_editions() -> Result<Vec<edition::Model>, ServerFnError> {
     edition::Entity::find()
         .all(db())

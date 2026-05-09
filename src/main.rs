@@ -54,7 +54,10 @@ const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
 
 fn main() {
     #[cfg(not(feature = "server"))]
-    dioxus::launch(App);
+    {
+        dioxus::fullstack::set_server_url("https://dieprobezeit.ch");
+        dioxus::launch(App);
+    }
 
     #[cfg(feature = "server")]
     dioxus::serve(|| async move {
