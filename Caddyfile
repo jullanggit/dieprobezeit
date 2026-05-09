@@ -6,4 +6,6 @@
 
 dieprobezeit.ch, www.dieprobezeit.ch {
     reverse_proxy localhost:8080
+
+    encode zstd gzip
 }
