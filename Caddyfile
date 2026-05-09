@@ -1,7 +1,7 @@
 # Global options
 {
     # staging acme
-    acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+    # acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
 }
 
 dieprobezeit.ch, www.dieprobezeit.ch {
