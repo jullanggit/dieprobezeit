@@ -13,12 +13,18 @@ services:
       pingoo.service: website
       pingoo.port: "8080"
 
-  pingoo:
-    image: docker.io/pingooio/pingoo:latest
+  caddy:
+    image: docker.io/library/caddy:2
+    container_name: caddy
     restart: unless-stopped
     network_mode: "host"
     volumes:
-      - ./pingoo.yml:/etc/pingoo/pingoo.yml:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
     depends_on:
       - backend
+
+volumes:
+  caddy_data:
+  caddy_config:
